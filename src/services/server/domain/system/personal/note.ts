@@ -36,7 +36,7 @@ export class SystemNoteService {
                     children: 0,
                     cover: "",
                     discover: 0,
-                    header: "",
+                    header: "markdown",
                     keywords: "",
                     partition: "",
                     path: "",
