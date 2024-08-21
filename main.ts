@@ -1,0 +1,42 @@
+import {initDatabase} from "@/services/worker/migration";
+import {runSync} from "@/services/worker/sync";
+import express from "express";
+import http from "http";
+import cron from "node-cron";
+import {serverConfig} from "@/services/server/config";
+import {findArticle, selectArticlesFromDatabase, selectFromChannel} from "@/handlers/articles/articles";
+import {selectChannels} from "@/handlers/channels/channels";
+
+const workerPort = serverConfig.WORKER_PORT;
+
+function runMain() {
+    // 每分钟执行一次同步
+    cron.schedule("* * * * *", async () => {
+        console.log("running a task every minute");
+        await runSync();
+    });
+
+    const server = express();
+    server.get("/articles", selectArticlesFromDatabase);
+    server.get("/channels/:channel/articles/:article", findArticle);
+    server.get("/channels/:channel/articles", selectFromChannel);
+    server.get("/channels", selectChannels);
+
+    server.all("*", (req, res) => {
+        res.json({code: 200});
+    });
+
+    const httpServer = http.createServer(server);
+
+    httpServer.listen(workerPort, async () => {
+        console.log(
+            `Worker server is running on http://localhost:${workerPort}`,
+        );
+        await initDatabase();
+    });
+}
+
+runSync().then(() => {
+}).catch(console.error);
+
+runMain();
