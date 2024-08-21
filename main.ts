@@ -9,6 +9,7 @@ import {selectChannels} from "@/handlers/channels/channels";
 import {selectLibraries} from "@/handlers/personal/libraries/libraries";
 import {selectNotebooks} from "@/handlers/personal/notebook";
 import {selectNotes} from "@/handlers/personal/note";
+import cors from 'cors'
 
 const workerPort = serverConfig.WORKER_PORT;
 
@@ -20,6 +21,13 @@ function runMain() {
     });
 
     const server = express();
+
+    // 解决跨域问题
+    server.use(cors({
+        credentials: true,
+        origin: true,
+    }));
+
     server.get("/articles", selectArticlesFromDatabase);
     server.get("/channels/:channel/articles/:article", findArticle);
     server.get("/channels/:channel/articles", selectFromChannel);
