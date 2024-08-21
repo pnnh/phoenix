@@ -6,9 +6,9 @@ import {PSArticleFileModel, PSArticleModel} from "@/models/article";
 import {bulkInsertOrUpdateArticles} from "@/services/server/domain/system/database";
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
-import {PLSelectResult} from "@/models/common-result";
+import {PLSelectResult} from "@pnnh/polaris-business";
 import ignore from 'ignore'
-import {getType} from "@/utils/mime";
+import {getType} from "@pnnh/atom";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 

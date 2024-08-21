@@ -1,7 +1,7 @@
 import {PSArticleModel} from "@/models/article";
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
-import {CodeOk, CommonResult, PLSelectResult} from "@/models/common-result";
+import {CodeOk, CommonResult, PLSelectResult} from "@pnnh/polaris-business";
 import {Request, Response} from "express";
 import {SystemArticleService} from "@/services/server/domain/system/article";
 import {serverConfig} from "@/services/server/config";

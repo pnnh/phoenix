@@ -1,4 +1,4 @@
-import {PSChannelModel} from "@/models/channel";
+import {PSChannelModel} from "@pnnh/polaris-business";
 import fs from "node:fs";
 import frontMatter from "front-matter";
 import path from "path";

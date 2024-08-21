@@ -1,4 +1,4 @@
-import {PSChannelModel} from "@/models/channel";
+import {PSChannelModel} from "@pnnh/polaris-business";
 
 export interface PSArticleModel {
     uid: string
@@ -24,11 +24,4 @@ export interface PSArticleFileModel {
     name: string
     path: string
     type: string
-}
-
-export function channelName(channel: string | PSChannelModel): string {
-    if (typeof channel === 'string') {
-        return channel
-    }
-    return channel.name
 }

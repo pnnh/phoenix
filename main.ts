@@ -6,6 +6,9 @@ import cron from "node-cron";
 import {serverConfig} from "@/services/server/config";
 import {findArticle, selectArticlesFromDatabase, selectFromChannel} from "@/handlers/articles/articles";
 import {selectChannels} from "@/handlers/channels/channels";
+import {selectLibraries} from "@/handlers/personal/libraries/libraries";
+import {selectNotebooks} from "@/handlers/personal/notebook";
+import {selectNotes} from "@/handlers/personal/note";
 
 const workerPort = serverConfig.WORKER_PORT;
 
@@ -21,6 +24,9 @@ function runMain() {
     server.get("/channels/:channel/articles/:article", findArticle);
     server.get("/channels/:channel/articles", selectFromChannel);
     server.get("/channels", selectChannels);
+    server.get("/personal/libraries", selectLibraries);
+    server.get("/personal/libraries/:library/notebooks", selectNotebooks);
+    server.get("/personal/libraries/:library/notebooks/:notebook/notes", selectNotes);
 
     server.all("*", (req, res) => {
         res.json({code: 200});
