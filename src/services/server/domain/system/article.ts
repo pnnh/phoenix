@@ -197,6 +197,7 @@ export class SystemArticleService {
             return []
         }
         const files = fs.readdirSync(parentFullPath)
+        const resultFiles = files
             .filter(file => !assetsIgnore.ignores(file))
             .map(file => {
                 const assetFullPath = path.join(parentFullPath, file)
@@ -210,7 +211,7 @@ export class SystemArticleService {
                     type: stat.isDirectory() ? 'directory' : 'file',
                 } as PSArticleFileModel
             })
-        return files
+        return resultFiles
     }
 
     readAssets(channelUrn: string, articleUrn: string, assetsUrn: string) {

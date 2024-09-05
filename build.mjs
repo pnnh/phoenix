@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-env --allow-run --allow-read --allow-write
 
-import {$, cd} from 'https://deno.land/x/zx_deno/mod.mjs'
+import {$} from 'https://deno.land/x/zx_deno/mod.mjs'
 
 await $`date`
 

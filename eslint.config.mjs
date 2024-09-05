@@ -1,4 +1,4 @@
-import importPlugin from 'eslint-plugin-import'
+
 import globals from 'globals'
 import tsParser from '@typescript-eslint/parser'
 import eslintJs from '@eslint/js'
@@ -18,7 +18,7 @@ const languageOptions = {
 const customTypescriptConfig = {
     files: tsFiles,
     plugins: {
-        import: importPlugin,
+       // import: importPlugin,
         'import/parsers': tsParser,
     },
     languageOptions: {
@@ -36,7 +36,7 @@ const customTypescriptConfig = {
     rules: {
         'import/export': 'error',
         'import/no-duplicates': 'warn',
-        ...importPlugin.configs.typescript.rules,
+       // ...importPlugin.configs.typescript.rules,
         '@typescript-eslint/no-use-before-define': 'off',
         'require-await': 'off',
         'no-duplicate-imports': 'error',

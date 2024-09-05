@@ -1,6 +1,4 @@
 import { openDatabase, openMainDatabase } from "@/services/server/database";
-import { Database } from "sqlite";
-import sqlite3 from "sqlite3";
 
 export async function initDatabase() {
     const database = await openMainDatabase()
@@ -33,12 +31,5 @@ export async function initDatabase() {
             path TEXT
         );
     `)
-    await migrateDatabaseV1(database)
 }
 
-// 迁移旧版本数据
-export async function migrateDatabaseV1(databaseCurrent: Database<sqlite3.Database>) {
-
-    //const databaseV1 = await openDatabase(`build/polaris.1.db`)
-    // TODO: 查询旧版本数据库中的数据，遍历并插入到新版本数据库中
-}

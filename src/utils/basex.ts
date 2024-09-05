@@ -1,5 +1,4 @@
-import {base64url} from 'rfc4648'
-import {parse as uuidParse, v4 as uuidv4} from 'uuid';
+
 import {base58xrp,} from '@scure/base';
 import md5 from "md5";
 

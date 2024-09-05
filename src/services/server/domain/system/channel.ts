@@ -3,7 +3,7 @@ import fs from "node:fs";
 import frontMatter from "front-matter";
 import path from "path";
 import {stringToMd5} from "@/utils/basex";
-import {encodeBase64String} from "@pnnh/atom";
+import {decodeBase64String, encodeBase64String, getType} from "@pnnh/atom";
 
 export class SystemChannelService {
     systemDomain: string
@@ -39,7 +39,8 @@ export class SystemChannelService {
                             model.description = metadata.description
                         }
                         if (metadata.image) {
-                            model.image = `assets://${metadata.image}`
+                            const imageAssetUrn = encodeBase64String(metadata.image)
+                            model.image = imageAssetUrn
                         }
                         if (metadata.title) {
                             model.name = metadata.title
@@ -57,15 +58,19 @@ export class SystemChannelService {
         }
     }
 
-    async readAssets(channelName: string, filePath: string) {
-        if (!filePath.startsWith('assets/')) {
-            throw new Error('只允许读取assets文件')
+    async readAssets(channelUrn: string, fileUrn: string) {
+        const channelPath = decodeBase64String(channelUrn)
+        const assetsPath = decodeBase64String(fileUrn)
+        const fullPath = path.join(this.systemDomain, channelPath, assetsPath)
+
+        const stat = fs.statSync(fullPath)
+        if (stat && stat.isFile() && stat.size < 4096000) {
+            const mimeType = getType(assetsPath)
+            return {
+                mime: mimeType,
+                buffer: fs.readFileSync(fullPath)
+            }
         }
-        const channelPath = `${channelName}.chan`
-        const fullPath = path.join(this.systemDomain, channelPath, filePath)
-        if (fs.existsSync(fullPath)) {
-            return fs.readFileSync(fullPath)
-        }
-        throw new Error("Method not implemented.");
+        return undefined
     }
 }

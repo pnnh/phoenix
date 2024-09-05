@@ -11,12 +11,13 @@ import {
     selectArticlesFromDatabase,
     selectFromChannel
 } from "@/handlers/articles/articles";
-import {selectChannels} from "@/handlers/channels/channels";
+import {fetchChannelFile, selectChannels} from "@/handlers/channels/channels";
 import {selectLibraries} from "@/handlers/personal/libraries/libraries";
 import {selectNotebooks} from "@/handlers/personal/notebook";
 import {selectNotes} from "@/handlers/personal/note";
 import cors from 'cors'
 import stripAnsi from "strip-ansi";
+import {accountInformation} from "@/handlers/account/information";
 
 const workerPort = serverConfig.WORKER_PORT;
 
@@ -26,7 +27,6 @@ function handleErrors(
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             await handlerFunc(req, res);
-            res.send(JSON.stringify({assert: 'passed'}));
         } catch (e) {
             next(e);
         }
@@ -48,12 +48,14 @@ function runMain() {
         origin: true,
     }));
 
+    server.get("/account/information", handleErrors(accountInformation));
     server.get("/articles", handleErrors(selectArticlesFromDatabase));
     server.get("/channels/:channel/articles/:article", handleErrors(findArticle));
     server.get("/channels/:channel/articles/:article/assets", handleErrors(fetchArticleAssets));
     server.get("/channels/:channel/articles/:article/assets/:asset", handleErrors(fetchArticleFile));
     server.get("/channels/:channel/articles", handleErrors(selectFromChannel));
     server.get("/channels", handleErrors(selectChannels));
+    server.get("/channels/:channel/assets/:asset", handleErrors(fetchChannelFile));
     server.get("/personal/libraries", handleErrors(selectLibraries));
     server.get("/personal/libraries/:library/notebooks", handleErrors(selectNotebooks));
     server.get("/personal/libraries/:library/notebooks/:notebook/notes", handleErrors(selectNotes));
