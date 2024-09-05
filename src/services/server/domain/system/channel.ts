@@ -3,6 +3,7 @@ import fs from "node:fs";
 import frontMatter from "front-matter";
 import path from "path";
 import {stringToMd5} from "@/utils/basex";
+import {encodeBase64String} from "@pnnh/atom";
 
 export class SystemChannelService {
     systemDomain: string
@@ -19,13 +20,14 @@ export class SystemChannelService {
             const stat = fs.statSync(basePath + '/' + file)
             if (stat.isDirectory() && file.endsWith('.chan')) {
                 const channelName = file.replace('.chan', '')
+                const channelUrn = encodeBase64String(file)
                 const model: PSChannelModel = {
                     create_time: "", creator: "", profile: "", update_time: "",
                     uid: stringToMd5(channelName),
                     image: '',
                     name: channelName,
                     description: '',
-                    urn: channelName
+                    urn: channelUrn
                 }
                 const metadataFile = basePath + '/' + file + '/metadata.md'
                 if (fs.existsSync(metadataFile)) {

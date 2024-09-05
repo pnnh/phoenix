@@ -24,7 +24,7 @@ export async function selectFromChannel(request: Request, response: Response) {
     const domainUrl = serverConfig.INITIAL_DOMAINS
     const articleService = new SystemArticleService(domainUrl)
 
-    const {channel, article} = request.params;
+    const {channel} = request.params;
     const result = await articleService.selectArticlesInChannel(channel as string)
     return response.json(result)
 }
@@ -64,3 +64,35 @@ export async function selectArticlesFromDatabase(
     response.json(selectResult);
 }
 
+// 查找单个文章
+export async function fetchArticleAssets(request: Request, response: Response) {
+    const domainUrl = serverConfig.INITIAL_DOMAINS
+    const articleService = new SystemArticleService(domainUrl)
+    const {channel, article,} = request.params
+    const {parent} = request.query
+    const result = await articleService.selectFiles(channel, article, parent as string)
+
+    if (!result) {
+        return response.json({status: 404})
+    }
+    const body = {
+        code: CodeOk,
+        data: result
+    }
+    response.json(body)
+}
+
+
+// 查找单个文章
+export async function fetchArticleFile(request: Request, response: Response) {
+    const domainUrl = serverConfig.INITIAL_DOMAINS
+    const articleService = new SystemArticleService(domainUrl)
+    const {channel, article, asset} = request.params
+    const result = await articleService.readAssets(channel, article, asset)
+
+    if (!result) {
+        return response.json({status: 404})
+    }
+    response.setHeader('Content-Type', result.mime)
+    response.send(result.buffer);
+}

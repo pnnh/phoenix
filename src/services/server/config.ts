@@ -8,9 +8,7 @@ if (result.error) {
 
 interface IServerConfig {
     ENV: string,
-    NEXT_PUBLIC_SELF_URL: string,
-    CLIENT_ID: string,
-    CLIENT_SECRET: string,
+    SELF_URL: string,
     INITIAL_DOMAINS: string,
     PORT: number,
     WORKER_PORT: number,
@@ -20,9 +18,7 @@ interface IServerConfig {
 function parseConfig(): IServerConfig {
     const config = {
         ENV: process.env.NODE_ENV || '',
-        NEXT_PUBLIC_SELF_URL: process.env.NEXT_PUBLIC_SELF_URL || '',
-        CLIENT_ID: process.env.CLIENT_ID || '',
-        CLIENT_SECRET: process.env.CLIENT_SECRET || '',
+        SELF_URL: process.env.SELF_URL || '',
         INITIAL_DOMAINS: process.env.INITIAL_DOMAINS || '',
         PORT: parseInt(process.env.PORT || '8100'),
         WORKER_PORT: parseInt(process.env.WORKER_PORT || '8101'),
@@ -31,14 +27,8 @@ function parseConfig(): IServerConfig {
     if (!config.ENV) {
         throw new Error('ENV is required')
     }
-    if (!config.NEXT_PUBLIC_SELF_URL) {
-        throw new Error('NEXT_PUBLIC_SELF_URL is required')
-    }
-    if (!config.CLIENT_ID) {
-        throw new Error('CLIENT_ID is required')
-    }
-    if (!config.CLIENT_SECRET) {
-        throw new Error('CLIENT_SECRET is required')
+    if (!config.SELF_URL) {
+        throw new Error('SELF_URL is required')
     }
     if (!config.INITIAL_DOMAINS) {
         throw new Error('INITIAL_DOMAINS is required')

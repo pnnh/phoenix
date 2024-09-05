@@ -8,7 +8,8 @@ import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
 import {PLSelectResult} from "@pnnh/polaris-business";
 import ignore from 'ignore'
-import {getType} from "@pnnh/atom";
+import {decodeBase64String, encodeBase64String, getType} from "@pnnh/atom";
+import {serverConfig} from "@/services/server/config";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 
@@ -19,9 +20,12 @@ export class SystemArticleService {
         this.systemDomain = systemDomain.replace('file://', '')
     }
 
-    async #parseArticleInfo(channelName: string, articlePath: string) {
-        const extName = path.extname(articlePath)
-        const noteName = path.basename(articlePath, extName)
+    async #parseArticleInfo(channelPath: string, articleFullPath: string) {
+        const extName = path.extname(articleFullPath)
+        const noteName = path.basename(articleFullPath, extName)
+        const channelUrn = encodeBase64String(channelPath)
+        const articlePath = noteName + extName
+        const articleUrn = encodeBase64String(articlePath)
 
         const model: PSArticleModel = {
             discover: 0,
@@ -29,7 +33,7 @@ export class SystemArticleService {
             update_time: "",
             uid: stringToMd5(noteName),
             description: '',
-            urn: '',
+            urn: articleUrn,
             name: noteName,
             title: noteName,
             header: 'markdown',
@@ -37,17 +41,16 @@ export class SystemArticleService {
             keywords: '',
             cover: '',
             owner: '',
-            channel: channelName,
+            channel: channelUrn,
             partition: '',
             path: ''
         }
-        model.urn = noteName
 
         let metaFilePath
         if (extName === '.note') {
-            metaFilePath = path.join(articlePath, 'index.md')
+            metaFilePath = path.join(articleFullPath, 'index.md')
         } else if (extName === '.md') {
-            metaFilePath = articlePath
+            metaFilePath = articleFullPath
         } else {
             throw new Error('不支持的文件类型')
         }
@@ -78,16 +81,16 @@ export class SystemArticleService {
         return model
     }
 
-    async #scanArticlesInChannel(channelPath: string) {
+    async #scanArticlesInChannel(channelFullPath: string, channelPath: string) {
         const articles: PSArticleModel[] = []
-        const channelName = path.basename(channelPath, '.chan')
-        const files = fs.readdirSync(channelPath)
+        const channelName = path.basename(channelFullPath, '.chan')
+        const files = fs.readdirSync(channelFullPath)
         for (const file of files) {
-            const fullPath = path.join(channelPath, file)
+            const fullPath = path.join(channelFullPath, file)
             const stat = fs.statSync(fullPath)
             const extName = path.extname(file)
             if ((stat.isDirectory() && extName === '.note')) {
-                const model = await this.#parseArticleInfo(channelName, fullPath)
+                const model = await this.#parseArticleInfo(channelPath, fullPath)
                 articles.push(model)
             }
         }
@@ -99,10 +102,10 @@ export class SystemArticleService {
         const files = fs.readdirSync(this.systemDomain)
         for (const file of files) {
             const extName = path.extname(file)
-            const channelPath = path.join(this.systemDomain, file)
-            const stat = fs.statSync(channelPath)
+            const channelFullPath = path.join(this.systemDomain, file)
+            const stat = fs.statSync(channelFullPath)
             if (stat.isDirectory() && extName === '.chan') {
-                const channelArticles = await this.#scanArticlesInChannel(channelPath)
+                const channelArticles = await this.#scanArticlesInChannel(channelFullPath, file)
                 articles.push(...channelArticles)
             }
         }
@@ -129,9 +132,10 @@ export class SystemArticleService {
         }
     }
 
-    async selectArticlesInChannel(channelName: string) {
-        const channelPath = path.join(this.systemDomain, `${channelName}.chan`)
-        const articles: PSArticleModel[] = await this.#scanArticlesInChannel(channelPath)
+    async selectArticlesInChannel(channelUrn: string) {
+        const channelPath = decodeBase64String(channelUrn)
+        const channelFullPath = path.join(this.systemDomain, channelPath)
+        const articles: PSArticleModel[] = await this.#scanArticlesInChannel(channelFullPath, channelPath)
         return {
             range: articles,
             count: articles.length,
@@ -156,26 +160,25 @@ export class SystemArticleService {
         }
     }
 
-    async getArticle(channelName: string, articleName: string) {
-        const channelPath = `${channelName}.chan`
-        let fullPath = path.join(this.systemDomain, channelPath, `${articleName}.note`)
+    async getArticle(channelUrn: string, articleUrn: string) {
+        const channelPath = decodeBase64String(channelUrn)
+        const articlePath = decodeBase64String(articleUrn)
+        let fullPath = path.join(this.systemDomain, channelPath, articlePath)
 
         const stat = fs.statSync(fullPath)
         if (stat.isDirectory()) {
-            return await this.#parseArticleInfo(channelName, fullPath)
+            return await this.#parseArticleInfo(channelPath, fullPath)
         }
-        fullPath = path.join(this.systemDomain, channelPath, `${articleName}.md`)
+        fullPath = path.join(this.systemDomain, channelPath, `${articleUrn}.md`)
         if (fs.existsSync(fullPath)) {
-            return await this.#parseArticleInfo(channelName, fullPath)
+            return await this.#parseArticleInfo(channelPath, fullPath)
         }
         return undefined
     }
 
-    async selectFiles(channelName: string, articleName: string, parentPath: string): Promise<PLSelectResult<PSArticleFileModel>> {
-        if (!parentPath) {
-            parentPath = 'assets'
-        }
-        const files = this.#scanFiles(channelName, articleName, parentPath)
+    async selectFiles(channelUrn: string, articleUrn: string, parentUrn: string): Promise<PLSelectResult<PSArticleFileModel>> {
+
+        const files = this.#scanFiles(channelUrn, articleUrn, parentUrn)
         return {
             range: files,
             count: files.length,
@@ -184,38 +187,41 @@ export class SystemArticleService {
         } as PLSelectResult<PSArticleFileModel>
     }
 
-    #scanFiles(channelName: string, articleName: string, parentPath: string): PSArticleFileModel[] {
-        const channelPath = `${channelName}.chan`
-        const articlePath = `${articleName}.note`
+    #scanFiles(channelUrn: string, articleUrn: string, parentUrn: string): PSArticleFileModel[] {
+        const channelPath = decodeBase64String(channelUrn)
+        const articlePath = decodeBase64String(articleUrn)
+        const parentPath = parentUrn ? decodeBase64String(parentUrn) : ''
 
-        const fullPath = path.join(this.systemDomain, channelPath, articlePath, parentPath)
-        if (!fs.existsSync(fullPath)) {
+        const parentFullPath = path.join(this.systemDomain, channelPath, articlePath, parentPath)
+        if (!fs.existsSync(parentFullPath)) {
             return []
         }
-        const files = fs.readdirSync(fullPath)
+        const files = fs.readdirSync(parentFullPath)
             .filter(file => !assetsIgnore.ignores(file))
             .map(file => {
-                const stat = fs.statSync(path.join(fullPath, file))
+                const assetFullPath = path.join(parentFullPath, file)
+                const stat = fs.statSync(assetFullPath)
+                const assetRelativePath = path.join(parentPath, file)
+                const assetUrn = encodeBase64String(assetRelativePath)
                 return {
                     name: file,
                     path: path.join(parentPath, file),
-                    type: stat.isDirectory() ? 'directory' : 'file'
+                    urn: assetUrn,
+                    type: stat.isDirectory() ? 'directory' : 'file',
                 } as PSArticleFileModel
             })
         return files
     }
 
-    readAssets(channelName: string, articleName: string, filePath: string) {
-        if (!filePath.startsWith('assets/')) {
-            throw new Error('只允许读取assets文件')
-        }
-        const channelPath = `${channelName}.chan`
-        const articlePath = `${articleName}.note`
-        const fullPath = path.join(this.systemDomain, channelPath, articlePath, filePath)
+    readAssets(channelUrn: string, articleUrn: string, assetsUrn: string) {
+        const channelPath = decodeBase64String(channelUrn)
+        const articlePath = decodeBase64String(articleUrn)
+        const assetsPath = decodeBase64String(assetsUrn)
+        const fullPath = path.join(this.systemDomain, channelPath, articlePath, assetsPath)
 
         const stat = fs.statSync(fullPath)
         if (stat && stat.isFile() && stat.size < 4096000) {
-            const mimeType = getType(fullPath)
+            const mimeType = getType(assetsPath)
             return {
                 mime: mimeType,
                 buffer: fs.readFileSync(fullPath)
