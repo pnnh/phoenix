@@ -33,8 +33,19 @@ export async function selectArticlesFromDatabase(
     request: Request,
     response: Response,
 ) {
-    const page = 1;
-    const size = 10;
+    let page = 1;
+    let size = 10;
+    const {page: pageStr, size: sizeStr} = request.query;
+    if (pageStr && sizeStr) {
+        page = parseInt(pageStr as string);
+        size = parseInt(sizeStr as string);
+    }
+    if (page <= 0 || isNaN(page)) {
+        page = 1;
+    }
+    if (size <= 10 || isNaN(size)) {
+        size = 10;
+    }
     const db = await openMainDatabase();
     const {limit, offset} = createPaginationByPage(page, size);
     const result = await db.all<PSArticleModel[]>(

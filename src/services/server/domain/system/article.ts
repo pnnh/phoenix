@@ -71,7 +71,7 @@ export class SystemArticleService {
                     model.description = metadata.description
                 }
                 if (metadata.image) {
-                    model.cover = `${metadata.image}`
+                    model.cover = encodeBase64String(metadata.image)
                 }
                 if (metadata.title) {
                     model.title = metadata.title

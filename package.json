@@ -8,7 +8,7 @@
   },
   "private": true,
   "dependencies": {
-    "@pnnh/atom": "file:../atom",
+    "@pnnh/atom": "^0.4.0",
     "@pnnh/polaris-business": "file:../polaris-business",
     "@scure/base": "^1.1.7",
     "@types/md5": "^2.3.5",
