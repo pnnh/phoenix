@@ -14,7 +14,7 @@ import {
 import {fetchChannelFile, selectChannels} from "@/handlers/channels/channels";
 import {selectLibraries} from "@/handlers/personal/libraries/libraries";
 import {selectNotebooks} from "@/handlers/personal/notebook";
-import {selectNotes} from "@/handlers/personal/note";
+import {selectNotes, updateNote} from "@/handlers/personal/note";
 import cors from 'cors'
 import stripAnsi from "strip-ansi";
 import {accountInformation} from "@/handlers/account/information";
@@ -47,6 +47,7 @@ function runMain() {
         credentials: true,
         origin: true,
     }));
+    server.use(express.json());
 
     server.get("/account/information", handleErrors(accountInformation));
     server.get("/articles", handleErrors(selectArticlesFromDatabase));
@@ -59,11 +60,12 @@ function runMain() {
     server.get("/personal/libraries", handleErrors(selectLibraries));
     server.get("/personal/libraries/:library/notebooks", handleErrors(selectNotebooks));
     server.get("/personal/libraries/:library/notebooks/:notebook/notes", handleErrors(selectNotes));
+    server.put("/personal/libraries/:library/notebooks/:notebook/notes/:note", handleErrors(updateNote));
 
     server.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         const message = stripAnsi(err.stack || err.message || 'Unknown error')
         res.status(500).send({
-            assert: 'failed',
+            asset: 'failed',
             message: message
         })
     })

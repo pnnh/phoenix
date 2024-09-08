@@ -1,4 +1,4 @@
-import {PLSelectResult, PSNoteModel} from "@pnnh/polaris-business";
+import {PLSelectResult, SPNoteModel} from "@pnnh/polaris-business";
 import fs from "node:fs";
 import frontMatter from "front-matter";
 import {decodeBase64String, encodeBase64String} from "@pnnh/atom";
@@ -12,9 +12,9 @@ export class SystemNoteService {
         this.systemDomain = systemDomain.replace('file://', '')
     }
 
-    async selectNotes(libraryUrn: string, notebookUrn: string): Promise<PLSelectResult<PSNoteModel>> {
+    async selectNotes(libraryUrn: string, notebookUrn: string): Promise<PLSelectResult<SPNoteModel>> {
         const basePath = this.systemDomain
-        const notes: PSNoteModel[] = []
+        const notes: SPNoteModel[] = []
         const libraryFileName = decodeBase64String(libraryUrn)
         if (!fs.existsSync(path.join(basePath, libraryFileName))) {
             return emptySelectResult()
@@ -29,7 +29,7 @@ export class SystemNoteService {
             if (stat.isDirectory() && file.endsWith('.note')) {
                 const noteName = path.basename(file, path.extname(file))
                 const noteUniqueName = encodeBase64String(file)
-                const model: PSNoteModel = {
+                const model: SPNoteModel = {
                     body: "",
                     channel: "",
                     channel_name: "",
@@ -46,7 +46,9 @@ export class SystemNoteService {
                     name: noteName,
                     description: '',
                     owner: '',
-                    urn: noteUniqueName
+                    urn: noteUniqueName,
+                    library: libraryUrn,
+                    notebook: notebookUrn
                 }
                 const metadataFile = path.join(basePath, libraryFileName, notebookFileName, file, 'index.md')
                 if (fs.existsSync(metadataFile)) {
@@ -73,5 +75,24 @@ export class SystemNoteService {
             page: 1,
             size: notes.length
         }
+    }
+
+    async updateNote(libraryUrn: string, notebookUrn: string, noteUrn: string,
+                     article: SPNoteModel): Promise<void> {
+        console.log('执行笔记文件保存操作', article)
+        const basePath = this.systemDomain
+        const libraryFileName = decodeBase64String(libraryUrn)
+        if (!fs.existsSync(path.join(basePath, libraryFileName))) {
+            return
+        }
+        const notebookFileName = decodeBase64String(notebookUrn)
+        if (!fs.existsSync(path.join(basePath, libraryFileName, notebookFileName))) {
+            return
+        }
+        const noteFileName = decodeBase64String(noteUrn)
+        if (!fs.existsSync(path.join(basePath, libraryFileName, notebookFileName, noteFileName))) {
+            return
+        }
+
     }
 }
