@@ -19,7 +19,7 @@ import cors from 'cors'
 import stripAnsi from "strip-ansi";
 import {accountInformation} from "@/handlers/account/information";
 
-const workerPort = serverConfig.WORKER_PORT;
+const workerPort = serverConfig.PORT;
 
 function handleErrors(
     handlerFunc: (request: Request, response: Response) => Promise<Response<any, Record<string, any>> | undefined | void>) {

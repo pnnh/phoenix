@@ -1,4 +1,4 @@
-import {PSArticleModel} from "@/models/article";
+import {PSArticleModel} from "@pnnh/polaris-business";
 import {openMainDatabase} from "@/services/server/database";
 
 export async function bulkInsertOrUpdateArticles(articles: PSArticleModel[]) {

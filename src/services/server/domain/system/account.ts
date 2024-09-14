@@ -1,5 +1,5 @@
 import {stringToBase58, stringToMd5} from "@/utils/basex";
-import {AccountModel} from "@/models/account";
+import {AccountModel} from "@pnnh/polaris-business";
 
 export class SystemAccountService {
     async accountInformation() {

@@ -1,15 +1,13 @@
 import fs from "node:fs";
-import frontMatter from "front-matter";
 import path from "path";
 import {stringToMd5} from "@/utils/basex";
-import {PSArticleFileModel, PSArticleModel} from "@/models/article";
 import {bulkInsertOrUpdateArticles} from "@/services/server/domain/system/database";
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
-import {PLSelectResult} from "@pnnh/polaris-business";
+import {PLSelectResult, PSArticleModel, PSArticleFileModel} from "@pnnh/polaris-business";
 import ignore from 'ignore'
 import {decodeBase64String, encodeBase64String, getType} from "@pnnh/atom";
-import {serverConfig} from "@/services/server/config";
+import {fillNoteMetadata} from "@/services/common/article";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 
@@ -46,44 +44,12 @@ export class SystemArticleService {
             path: ''
         }
 
-        let metaFilePath
-        if (extName === '.note') {
-            metaFilePath = path.join(articleFullPath, 'index.md')
-        } else if (extName === '.md') {
-            metaFilePath = articleFullPath
-        } else {
-            throw new Error('不支持的文件类型')
-        }
-        if (!fs.existsSync(metaFilePath)) {
-            return model
-        }
-        const statIndex = fs.statSync(metaFilePath)
-        if (statIndex.isFile()) {
-            model.create_time = statIndex.birthtime.toISOString()
-            model.update_time = statIndex.mtime.toISOString()
-            const metadataText = fs.readFileSync(metaFilePath, 'utf-8')
-            const matter = frontMatter(metadataText)
-            model.body = matter.body
-            const metadata = matter.attributes as
-                { image: string, description: string, title: string }
-            if (metadata) {
-                if (metadata.description) {
-                    model.description = metadata.description
-                }
-                if (metadata.image) {
-                    model.cover = encodeBase64String(metadata.image)
-                }
-                if (metadata.title) {
-                    model.title = metadata.title
-                }
-            }
-        }
+        await fillNoteMetadata(articleFullPath, model)
         return model
     }
 
     async #scanArticlesInChannel(channelFullPath: string, channelPath: string) {
         const articles: PSArticleModel[] = []
-        const channelName = path.basename(channelFullPath, '.chan')
         const files = fs.readdirSync(channelFullPath)
         for (const file of files) {
             const fullPath = path.join(channelFullPath, file)
@@ -104,7 +70,7 @@ export class SystemArticleService {
             const extName = path.extname(file)
             const channelFullPath = path.join(this.systemDomain, file)
             const stat = fs.statSync(channelFullPath)
-            if (stat.isDirectory() && extName === '.chan') {
+            if (stat.isDirectory() && (extName === '.chan' || extName === '.channel')) {
                 const channelArticles = await this.#scanArticlesInChannel(channelFullPath, file)
                 articles.push(...channelArticles)
             }

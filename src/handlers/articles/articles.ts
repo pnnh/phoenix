@@ -1,4 +1,4 @@
-import {PSArticleModel} from "@/models/article";
+import {PSArticleModel} from "@pnnh/polaris-business";
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
 import {CodeOk, CommonResult, PLSelectResult} from "@pnnh/polaris-business";

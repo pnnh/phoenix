@@ -4,6 +4,7 @@ import frontMatter from "front-matter";
 import {decodeBase64String, encodeBase64String} from "@pnnh/atom";
 import path from "path";
 import {emptySelectResult} from "@pnnh/polaris-business";
+import {fillNoteMetadata} from "@/services/common/article";
 
 export class SystemNoteService {
     systemDomain: string
@@ -50,22 +51,8 @@ export class SystemNoteService {
                     library: libraryUrn,
                     notebook: notebookUrn
                 }
-                const metadataFile = path.join(basePath, libraryFileName, notebookFileName, file, 'index.md')
-                if (fs.existsSync(metadataFile)) {
-                    const metadataText = fs.readFileSync(metadataFile, 'utf-8')
-                    const matter = frontMatter(metadataText)
-                    model.body = matter.body
-                    const metadata = matter.attributes as
-                        { image: string, description: string, title: string }
-                    if (metadata) {
-                        if (metadata.description) {
-                            model.description = metadata.description
-                        }
-                        if (metadata.title) {
-                            model.name = metadata.title
-                        }
-                    }
-                }
+                let noteDirectoryFullPath = path.join(basePath, libraryFileName, notebookFileName, file)
+                await fillNoteMetadata(noteDirectoryFullPath, model)
                 notes.push(model)
             }
         }
@@ -76,6 +63,7 @@ export class SystemNoteService {
             size: notes.length
         }
     }
+
 
     async updateNote(libraryUrn: string, notebookUrn: string, noteUrn: string,
                      article: SPNoteModel): Promise<void> {

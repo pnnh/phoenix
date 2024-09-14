@@ -11,7 +11,6 @@ interface IServerConfig {
     SELF_URL: string,
     INITIAL_DOMAINS: string,
     PORT: number,
-    WORKER_PORT: number,
     DATA_PATH: string,
 }
 
@@ -21,7 +20,6 @@ function parseConfig(): IServerConfig {
         SELF_URL: process.env.SELF_URL || '',
         INITIAL_DOMAINS: process.env.INITIAL_DOMAINS || '',
         PORT: parseInt(process.env.PORT || '8100'),
-        WORKER_PORT: parseInt(process.env.WORKER_PORT || '8101'),
         DATA_PATH: process.env.DATA_PATH || '.',
     }
     if (!config.ENV) {
@@ -35,9 +33,6 @@ function parseConfig(): IServerConfig {
     }
     if (!config.PORT) {
         throw new Error('PORT is required')
-    }
-    if (!config.WORKER_PORT) {
-        throw new Error('WORKER_PORT is required')
     }
     if (!config.DATA_PATH) {
         throw new Error('DATA_PATH is required')

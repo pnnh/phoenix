@@ -18,8 +18,9 @@ export class SystemChannelService {
         const files = fs.readdirSync(basePath)
         for (const file of files) {
             const stat = fs.statSync(basePath + '/' + file)
-            if (stat.isDirectory() && file.endsWith('.chan')) {
-                const channelName = file.replace('.chan', '')
+            const extName = path.extname(file)
+            if (stat.isDirectory() && (extName === '.chan' || extName === '.channel')) {
+                const channelName = file.replace(extName, '')
                 const channelUrn = encodeBase64String(file)
                 const model: PSChannelModel = {
                     create_time: "", creator: "", profile: "", update_time: "",
@@ -31,6 +32,9 @@ export class SystemChannelService {
                 }
                 const metadataFile = basePath + '/' + file + '/metadata.md'
                 if (fs.existsSync(metadataFile)) {
+                    const statIndex = fs.statSync(metadataFile)
+                    model.create_time = statIndex.birthtime.toISOString()
+                    model.update_time = statIndex.mtime.toISOString()
                     const metadataText = fs.readFileSync(metadataFile, 'utf-8')
                     const metadata = frontMatter(metadataText).attributes as
                         { image: string, description: string, title: string }
