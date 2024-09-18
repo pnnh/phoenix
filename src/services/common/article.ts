@@ -2,7 +2,7 @@ import {PSArticleModel, SPNoteModel} from "@pnnh/polaris-business";
 import path from "path";
 import fs from "node:fs";
 import frontMatter from "front-matter";
-import {encodeBase64String} from "../../../../atom";
+import {encodeBase64String} from "@pnnh/atom";
 
 export async function fillNoteMetadata(noteDirectoryFullPath: string, model: SPNoteModel | PSArticleModel) {
     let metadataFile = path.join(noteDirectoryFullPath, 'index.md')

@@ -1,20 +1,18 @@
-import { openDatabase, openMainDatabase } from "@/services/server/database";
+import {openDatabase, openMainDatabase} from "@/services/server/database";
 
 export async function initDatabase() {
     const database = await openMainDatabase()
     await database.exec(`
         CREATE TABLE IF NOT EXISTS channels
         (
-            uid TEXT PRIMARY KEY,
+            urn TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             description TEXT,
-            image TEXT,
-            urn TEXT
+            image TEXT
         );
         CREATE TABLE IF NOT EXISTS articles
-        (
-            uid TEXT PRIMARY KEY,
-            urn TEXT,
+        ( 
+            urn TEXT PRIMARY KEY,
             title TEXT NOT NULL,
             header TEXT,
             body TEXT,
@@ -23,8 +21,8 @@ export async function initDatabase() {
             creator TEXT,
             keywords TEXT,
             description TEXT,
-            cover TEXT,
-            discover INTEGER,
+            cover TEXT DEFAULT '',
+            discover INTEGER DEFAULT 0,
             owner TEXT,
             channel TEXT,
             partition TEXT,

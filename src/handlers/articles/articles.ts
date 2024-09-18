@@ -1,10 +1,11 @@
-import {PSArticleModel} from "@pnnh/polaris-business";
+import {PLInsertResult, PSArticleModel} from "@pnnh/polaris-business";
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
 import {CodeOk, CommonResult, PLSelectResult} from "@pnnh/polaris-business";
 import {Request, Response} from "express";
 import {SystemArticleService} from "@/services/server/domain/system/article";
 import {serverConfig} from "@/services/server/config";
+import {articleViewerCache} from "@/services/server/cache";
 
 // 查找单个文章
 export async function findArticle(request: Request, response: Response) {
@@ -35,7 +36,7 @@ export async function selectArticlesFromDatabase(
 ) {
     let page = 1;
     let size = 10;
-    const {page: pageStr, size: sizeStr} = request.query;
+    const {page: pageStr, size: sizeStr, keyword} = request.query;
     if (pageStr && sizeStr) {
         page = parseInt(pageStr as string);
         size = parseInt(sizeStr as string);
@@ -48,15 +49,23 @@ export async function selectArticlesFromDatabase(
     }
     const db = await openMainDatabase();
     const {limit, offset} = createPaginationByPage(page, size);
+
+    let selectSql = `SELECT * FROM articles `;
+    let selectParams: any = {
+        ":limit": limit,
+        ":offset": offset,
+    }
+    if (keyword) {
+        selectSql += ` WHERE title LIKE '%' || :keyword || '%' OR description LIKE '%' || :keyword || '%' OR body LIKE '%' || :keyword || '%' `;
+        selectParams[":keyword"] = keyword;
+    }
+    selectSql += ` ORDER BY update_time DESC LIMIT :limit OFFSET :offset`;
+
     const result = await db.all<PSArticleModel[]>(
-        `SELECT * FROM articles ORDER BY update_time DESC LIMIT :limit OFFSET :offset`,
-        {
-            ":limit": limit,
-            ":offset": offset,
-        },
+        selectSql, selectParams,
     );
     const count = await db.get<{ total: number }>(
-        "SELECT COUNT(*) AS total FROM articles",
+        `SELECT COUNT(*) AS total FROM (${selectSql}) as temp`, selectParams
     );
     if (!count) {
         throw new Error("查询count失败");
@@ -70,6 +79,56 @@ export async function selectArticlesFromDatabase(
             count: count.total,
             page: page,
             size: result.length,
+        }
+    };
+    response.json(selectResult);
+}
+
+// 创建或更新文章阅读数据
+export async function updateArticleViewer(
+    request: Request,
+    response: Response,
+) {
+    const {article} = request.params
+    const {clientIp} = request.query;
+
+    if (!clientIp || !article) {
+        return response.json({
+            code: 400,
+            message: "缺少必须参数",
+            data: null,
+        });
+    }
+    const cacheKey = `article_viewer_${article}_${clientIp}`;
+    const cacheValue = articleViewerCache.get(cacheKey);
+    if (cacheValue) {
+        return response.json({
+            code: 200,
+            message: "已经记录过",
+            data: null,
+        });
+    }
+
+    const db = await openMainDatabase();
+
+
+    let selectSql = `update articles set discover = ifnull(discover, 0) + 1 where urn = :urn`;
+    let selectParams: any = {
+        ":urn": article,
+    }
+
+    const result = await db.run(
+        selectSql, selectParams,
+    );
+
+    articleViewerCache.set(cacheKey, 1, 60 * 60 * 24);
+
+    const selectResult: CommonResult<PLInsertResult> = {
+        code: CodeOk,
+        message: "",
+        data: {
+            pk: article,
+            changes: result.changes || 0,
         }
     };
     response.json(selectResult);

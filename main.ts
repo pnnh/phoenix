@@ -9,7 +9,7 @@ import {
     fetchArticleFile,
     findArticle,
     selectArticlesFromDatabase,
-    selectFromChannel
+    selectFromChannel, updateArticleViewer
 } from "@/handlers/articles/articles";
 import {fetchChannelFile, selectChannels} from "@/handlers/channels/channels";
 import {selectLibraries} from "@/handlers/personal/libraries/libraries";
@@ -51,6 +51,7 @@ function runMain() {
 
     server.get("/account/information", handleErrors(accountInformation));
     server.get("/articles", handleErrors(selectArticlesFromDatabase));
+    server.post("/articles/:article/viewer", handleErrors(updateArticleViewer));
     server.get("/channels/:channel/articles/:article", handleErrors(findArticle));
     server.get("/channels/:channel/articles/:article/assets", handleErrors(fetchArticleAssets));
     server.get("/channels/:channel/articles/:article/assets/:asset", handleErrors(fetchArticleFile));
@@ -65,7 +66,7 @@ function runMain() {
     server.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         const message = stripAnsi(err.stack || err.message || 'Unknown error')
         res.status(500).send({
-            asset: 'failed',
+            code: 500,
             message: message
         })
     })
