@@ -36,7 +36,7 @@ export async function selectArticlesFromDatabase(
 ) {
     let page = 1;
     let size = 10;
-    const {page: pageStr, size: sizeStr, keyword} = request.query;
+    const {page: pageStr, size: sizeStr, keyword, filter, sort} = request.query;
     if (pageStr && sizeStr) {
         page = parseInt(pageStr as string);
         size = parseInt(sizeStr as string);
@@ -50,26 +50,33 @@ export async function selectArticlesFromDatabase(
     const db = await openMainDatabase();
     const {limit, offset} = createPaginationByPage(page, size);
 
-    let selectSql = `SELECT * FROM articles `;
-    let selectParams: any = {
-        ":limit": limit,
-        ":offset": offset,
-    }
+    let selectSql = `SELECT * FROM articles WHERE 1 = 1 `;
+    let selectParams: any = {}
+
     if (keyword) {
-        selectSql += ` WHERE title LIKE '%' || :keyword || '%' OR description LIKE '%' || :keyword || '%' OR body LIKE '%' || :keyword || '%' `;
+        selectSql += ` AND (title LIKE '%' || :keyword || '%' OR description LIKE '%' || :keyword || '%' OR body LIKE '%' || :keyword || '%') `;
         selectParams[":keyword"] = keyword;
     }
-    selectSql += ` ORDER BY update_time DESC LIMIT :limit OFFSET :offset`;
+    if (filter) {
+        if (filter === 'year') {
+            selectSql += ` AND strftime('%Y', update_time) = strftime('%Y', 'now') `;
+        } else if (filter === 'month') {
+            selectSql += ` AND strftime('%Y-%m', update_time) = strftime('%Y-%m', 'now') `;
+        }
+    }
 
-    const result = await db.all<PSArticleModel[]>(
-        selectSql, selectParams,
-    );
     const count = await db.get<{ total: number }>(
         `SELECT COUNT(*) AS total FROM (${selectSql}) as temp`, selectParams
     );
     if (!count) {
         throw new Error("查询count失败");
     }
+    selectSql += ` ORDER BY ${sort === 'latest' ? 'update_time' : 'discover'} DESC LIMIT :limit OFFSET :offset`;
+    selectParams[":limit"] = limit;
+    selectParams[":offset"] = offset;
+    const result = await db.all<PSArticleModel[]>(
+        selectSql, selectParams,
+    );
 
     const selectResult: CommonResult<PLSelectResult<PSArticleModel>> = {
         code: CodeOk,
@@ -90,7 +97,7 @@ export async function updateArticleViewer(
     response: Response,
 ) {
     const {article} = request.params
-    const {clientIp} = request.query;
+    const {clientIp} = request.body;
 
     if (!clientIp || !article) {
         return response.json({
