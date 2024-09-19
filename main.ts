@@ -18,6 +18,7 @@ import {selectNotes, updateNote} from "@/handlers/personal/note";
 import cors from 'cors'
 import stripAnsi from "strip-ansi";
 import {accountInformation} from "@/handlers/account/information";
+import {selectTagsFromDatabase} from "@/handlers/tags/tags";
 
 const workerPort = serverConfig.PORT;
 
@@ -51,6 +52,7 @@ function runMain() {
 
     server.get("/account/information", handleErrors(accountInformation));
     server.get("/articles", handleErrors(selectArticlesFromDatabase));
+    server.get("/tags", handleErrors(selectTagsFromDatabase));
     server.post("/articles/:article/viewer", handleErrors(updateArticleViewer));
     server.get("/channels/:channel/articles/:article", handleErrors(findArticle));
     server.get("/channels/:channel/articles/:article/assets", handleErrors(fetchArticleAssets));

@@ -24,7 +24,7 @@ export async function fillNoteMetadata(noteDirectoryFullPath: string, model: SPN
     const matter = frontMatter(metadataText)
     model.body = matter.body
     const metadata = matter.attributes as
-        { image: string, description: string, title: string }
+        { image: string, description: string, title: string, tags: string }
     if (metadata) {
         if (metadata.description) {
             model.description = metadata.description
@@ -34,6 +34,9 @@ export async function fillNoteMetadata(noteDirectoryFullPath: string, model: SPN
         }
         if (metadata.image) {
             model.cover = encodeBase64String(metadata.image)
+        }
+        if (metadata.tags) {
+            model.keywords = metadata.tags
         }
     }
 }

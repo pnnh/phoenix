@@ -28,6 +28,16 @@ export async function initDatabase() {
             partition TEXT,
             path TEXT
         );
+        CREATE TABLE IF NOT EXISTS tags
+        (
+            urn TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            article TEXT,
+            create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+            update_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+            channel TEXT
+        );
     `)
 }
 
