@@ -23,8 +23,7 @@ export class SystemChannelService {
                 const channelName = file.replace(extName, '')
                 const channelUrn = encodeBase64String(file)
                 const model: PSChannelModel = {
-                    create_time: "", creator: "", profile: "", update_time: "",
-                    uid: stringToMd5(channelName),
+                    create_time: "", creator: "", profile: "", update_time: "", 
                     image: '',
                     name: channelName,
                     description: '',

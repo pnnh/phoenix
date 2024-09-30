@@ -21,12 +21,10 @@ export class SystemLibraryService {
                 const libraryName = path.basename(file, path.extname(file))
                 const uniqueName = encodeBase64String(file)
                 const model: PSLibraryModel = {
-                    create_time: "", update_time: "",
-                    uid: uniqueName,
+                    create_time: "", update_time: "", 
                     urn: uniqueName,
                     name: libraryName,
-                    description: '',
-                    nid: 0,
+                    description: '', 
                     owner: ''
                 }
                 const metadataFile = path.join(basePath, file, 'metadata.md')

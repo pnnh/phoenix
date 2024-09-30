@@ -29,11 +29,10 @@ export class SystemNotebookService {
                     image: "", owner_name: "", profile: "", profile_name: "",
                     title: notebookName,
                     create_time: "", update_time: "",
-                    uid: notebookUniqueName,
+                    urn: notebookUniqueName,
                     name: notebookName,
                     description: '',
-                    owner: '',
-                    urn: notebookUniqueName
+                    owner: ''
                 }
                 const metadataFile = basePath + '/' + file + '/metadata.md'
                 if (fs.existsSync(metadataFile)) {

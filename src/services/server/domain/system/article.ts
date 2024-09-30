@@ -28,8 +28,7 @@ export class SystemArticleService {
         const model: PSArticleModel = {
             discover: 0,
             create_time: "", creator: "",
-            update_time: "",
-            uid: stringToMd5(noteName),
+            update_time: "", 
             description: '',
             urn: articleUrn,
             name: noteName,

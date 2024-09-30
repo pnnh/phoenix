@@ -77,7 +77,7 @@ function runMain() {
 
     httpServer.listen(workerPort, async () => {
         console.log(
-            `Worker server is running on http://localhost:${workerPort}`,
+            `Worker server is running on http://0.0.0.0:${workerPort}`,
         );
         await initDatabase();
     });

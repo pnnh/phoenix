@@ -38,9 +38,6 @@
       "@/*": [
         "./src/*"
       ]
-      //      "~/*": [
-      //        "./node_modules/*"
-      //      ]
     },
     "plugins": [
       {
@@ -54,6 +51,7 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }
