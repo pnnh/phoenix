@@ -1,6 +1,6 @@
 {
   "name": "polaris-worker",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "scripts": {
     "worker": "NODE_ENV=development tsx main.ts",
