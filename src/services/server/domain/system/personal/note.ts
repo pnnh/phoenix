@@ -43,11 +43,10 @@ export class SystemNoteService {
                     path: "",
                     title: noteName,
                     create_time: "", update_time: "",
-                    uid: noteUniqueName,
+                    urn: noteUniqueName,
                     name: noteName,
                     description: '',
-                    owner: '',
-                    urn: noteUniqueName,
+                    owner: '', 
                     library: libraryUrn,
                     notebook: notebookUrn
                 }

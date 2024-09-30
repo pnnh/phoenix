@@ -4,7 +4,6 @@ import {AccountModel} from "@pnnh/polaris-business";
 export class SystemAccountService {
     async accountInformation() {
         const userSession: AccountModel = {
-            uid: stringToMd5('anonymous'),
             urn: stringToBase58('anonymous'),
             create_time: '',
             update_time: '',
