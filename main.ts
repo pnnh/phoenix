@@ -34,6 +34,17 @@ function handleErrors(
     }
 }
 
+export async function sayHello(
+    request: Request,
+    response: Response,
+) {
+
+    response.json({
+        code: 200,
+        message: "Hello, World!",
+    })
+}
+
 function runMain() {
     // 每分钟执行一次同步
     cron.schedule("* * * * *", async () => {
@@ -50,6 +61,7 @@ function runMain() {
     }));
     server.use(express.json());
 
+    server.get("/", handleErrors(sayHello));
     server.get("/account/information", handleErrors(accountInformation));
     server.get("/articles", handleErrors(selectArticlesFromDatabase));
     server.get("/tags", handleErrors(selectTagsFromDatabase));
