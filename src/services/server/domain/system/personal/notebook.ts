@@ -1,9 +1,10 @@
-import { PLSelectResult, PSNotebookModel} from "@pnnh/polaris-business";
+
 import fs from "node:fs";
 import frontMatter from "front-matter";
-import {decodeBase64String, encodeBase64String} from "@pnnh/atom";
 import path from "path";
-import {emptySelectResult} from "@pnnh/polaris-business";
+import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {PSNotebookModel} from "@/atom/common/models/personal/notebook";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
 
 export class SystemNotebookService {
     systemDomain: string
@@ -52,10 +53,13 @@ export class SystemNotebookService {
             }
         }
         return {
-            range: notebooks,
-            count: notebooks.length,
-            page: 1,
-            size: notebooks.length
+            code: CodeOk, message:'',
+            data: {
+                range: notebooks,
+                count: notebooks.length,
+                page: 1,
+                size: notebooks.length
+            }
         }
     }
 }

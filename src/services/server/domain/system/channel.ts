@@ -1,9 +1,10 @@
-import {PSChannelModel} from "@pnnh/polaris-business";
+
 import fs from "node:fs";
 import frontMatter from "front-matter";
 import path from "path";
-import {stringToMd5} from "@/utils/basex";
-import {decodeBase64String, encodeBase64String, getType} from "@pnnh/atom";
+import {PSChannelModel} from "@/atom/common/models/channel";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {getMimeType} from "@/atom/common/utils/mime";
 
 export class SystemChannelService {
     systemDomain: string
@@ -23,7 +24,7 @@ export class SystemChannelService {
                 const channelName = file.replace(extName, '')
                 const channelUrn = encodeBase64String(file)
                 const model: PSChannelModel = {
-                    create_time: "", creator: "", profile: "", update_time: "", 
+                    create_time: "", creator: "", profile: "", update_time: "",
                     image: '',
                     name: channelName,
                     description: '',
@@ -68,7 +69,7 @@ export class SystemChannelService {
 
         const stat = fs.statSync(fullPath)
         if (stat && stat.isFile() && stat.size < 4096000) {
-            const mimeType = getType(assetsPath)
+            const mimeType = getMimeType(assetsPath)
             return {
                 mime: mimeType,
                 buffer: fs.readFileSync(fullPath)

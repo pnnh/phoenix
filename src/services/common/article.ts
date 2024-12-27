@@ -1,8 +1,10 @@
-import {PSArticleModel, SPNoteModel} from "@pnnh/polaris-business";
+
 import path from "path";
 import fs from "node:fs";
 import frontMatter from "front-matter";
-import {encodeBase64String} from "@pnnh/atom";
+import {SPNoteModel} from "@/atom/common/models/personal/note";
+import {PSArticleModel} from "@/atom/common/models/article";
+import {encodeBase64String} from "@/atom/common/utils/basex";
 
 export async function fillNoteMetadata(noteDirectoryFullPath: string, model: SPNoteModel | PSArticleModel) {
     let metadataFile = path.join(noteDirectoryFullPath, 'index.md')
@@ -30,7 +32,7 @@ export async function fillNoteMetadata(noteDirectoryFullPath: string, model: SPN
             model.description = metadata.description
         }
         if (metadata.title) {
-            model.name = metadata.title
+            model.title = metadata.title
         }
         if (metadata.image) {
             model.cover = encodeBase64String(metadata.image)

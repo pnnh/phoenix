@@ -1,11 +1,12 @@
-import {PLInsertResult, PSArticleModel} from "@pnnh/polaris-business";
+
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
-import {CodeOk, CommonResult, PLSelectResult} from "@pnnh/polaris-business";
 import {Request, Response} from "express";
 import {SystemArticleService} from "@/services/server/domain/system/article";
 import {serverConfig} from "@/services/server/config";
 import {articleViewerCache} from "@/services/server/cache";
+import {PSArticleModel} from "@/atom/common/models/article";
+import {CodeOk, CommonResult, PLInsertResult, PLSelectResult} from "@/atom/common/models/protocol";
 
 // 查找单个文章
 export async function findArticle(request: Request, response: Response) {
@@ -78,7 +79,7 @@ export async function selectArticlesFromDatabase(
         selectSql, selectParams,
     );
 
-    const selectResult: CommonResult<PLSelectResult<PSArticleModel>> = {
+    const selectResult: PLSelectResult<PSArticleModel> = {
         code: CodeOk,
         message: "",
         data: {
@@ -130,11 +131,11 @@ export async function updateArticleViewer(
 
     articleViewerCache.set(cacheKey, 1, 60 * 60 * 24);
 
-    const selectResult: CommonResult<PLInsertResult> = {
+    const selectResult: PLInsertResult<unknown>= {
         code: CodeOk,
         message: "",
         data: {
-            pk: article,
+            urn: article,
             changes: result.changes || 0,
         }
     };

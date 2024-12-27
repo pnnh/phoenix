@@ -1,8 +1,8 @@
 import {SystemChannelService} from "@/services/server/domain/system/channel";
 import {serverConfig} from "@/services/server/config";
 import {Request, Response} from "express";
-import {SystemArticleService} from "@/services/server/domain/system/article";
-import {getType} from "@pnnh/atom";
+import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
+import {PSChannelModel} from "@/atom/common/models/channel";
 
 // 查询频道列表
 export async function selectChannels(request: Request, response: Response) {
@@ -11,7 +11,12 @@ export async function selectChannels(request: Request, response: Response) {
     const channelService = new SystemChannelService(domainUrl)
 
     const result = await channelService.selectChannels()
-    return response.json(result)
+    const responseResult: PLSelectResult<PSChannelModel> = {
+        code: CodeOk,
+        message: '',
+        data: result
+    }
+    return response.json(responseResult)
 }
 
 // 查找单个文章

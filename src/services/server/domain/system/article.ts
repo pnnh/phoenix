@@ -4,10 +4,12 @@ import {stringToMd5} from "@/utils/basex";
 import {bulkInsertOrUpdateArticles} from "@/services/server/domain/system/database";
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
-import {PLSelectResult, PSArticleModel, PSArticleFileModel} from "@pnnh/polaris-business";
 import ignore from 'ignore'
-import {decodeBase64String, encodeBase64String, getType} from "@pnnh/atom";
 import {fillNoteMetadata} from "@/services/common/article";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {PSArticleFileModel, PSArticleModel} from "@/atom/common/models/article";
+import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
+import {getMimeType} from "@/atom/common/utils/mime";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 
@@ -28,10 +30,9 @@ export class SystemArticleService {
         const model: PSArticleModel = {
             discover: 0,
             create_time: "", creator: "",
-            update_time: "", 
+            update_time: "",
             description: '',
             urn: articleUrn,
-            name: noteName,
             title: noteName,
             header: 'markdown',
             body: '',
@@ -90,10 +91,14 @@ export class SystemArticleService {
             throw new Error('查询count失败')
         }
         return {
-            range: result,
-            count: count.total,
-            page: page,
-            size: result.length
+            code: CodeOk,
+            message: '',
+            data: {
+                range: result,
+                count: count.total,
+                page: page,
+                size: result.length
+            }
         }
     }
 
@@ -145,11 +150,15 @@ export class SystemArticleService {
 
         const files = this.#scanFiles(channelUrn, articleUrn, parentUrn)
         return {
-            range: files,
-            count: files.length,
-            page: 1,
-            size: files.length
-        } as PLSelectResult<PSArticleFileModel>
+            code: CodeOk,
+            message: '',
+            data: {
+                range: files,
+                count: files.length,
+                page: 1,
+                size: files.length
+            }
+        }
     }
 
     #scanFiles(channelUrn: string, articleUrn: string, parentUrn: string): PSArticleFileModel[] {
@@ -187,7 +196,7 @@ export class SystemArticleService {
 
         const stat = fs.statSync(fullPath)
         if (stat && stat.isFile() && stat.size < 4096000) {
-            const mimeType = getType(assetsPath)
+            const mimeType = getMimeType(assetsPath)
             return {
                 mime: mimeType,
                 buffer: fs.readFileSync(fullPath)

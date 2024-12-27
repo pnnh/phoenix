@@ -1,7 +1,8 @@
 import {Request, Response} from "express";
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
-import {CodeOk, CommonResult, PLSelectResult, PSTagModel} from "@pnnh/polaris-business";
+import {PSTagModel} from "@/atom/common/models/tag";
+import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
 
 export async function selectTagsFromDatabase(
     request: Request,
@@ -44,7 +45,7 @@ export async function selectTagsFromDatabase(
         selectSql, selectParams,
     );
 
-    const selectResult: CommonResult<PLSelectResult<PSTagModel>> = {
+    const selectResult: PLSelectResult<PSTagModel> = {
         code: CodeOk,
         message: "",
         data: {
