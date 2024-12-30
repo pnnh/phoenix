@@ -1,7 +1,7 @@
 
 import fs from "node:fs";
 import path from "path";
-import {fillNoteMetadata} from "@/services/common/article";
+import {fillNoteMetadata} from "@/services/server/articles/article";
 import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
 import {SPNoteModel} from "@/atom/common/models/personal/note";
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";

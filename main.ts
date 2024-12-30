@@ -9,9 +9,9 @@ import {
     fetchArticleFile,
     findArticle,
     selectArticlesFromDatabase,
-    selectFromChannel, updateArticleViewer
+    updateArticleViewer
 } from "@/handlers/articles/articles";
-import {fetchChannelFile, selectChannels} from "@/handlers/channels/channels";
+import {fetchChannelFile, findChannel, selectChannelArticles, selectChannels} from "@/handlers/channels/channels";
 import {selectLibraries} from "@/handlers/personal/libraries/libraries";
 import {selectNotebooks} from "@/handlers/personal/notebook";
 import {selectNotes, updateNote} from "@/handlers/personal/note";
@@ -66,11 +66,12 @@ function runMain() {
     server.get("/articles", handleErrors(selectArticlesFromDatabase));
     server.get("/tags", handleErrors(selectTagsFromDatabase));
     server.post("/articles/:article/viewer", handleErrors(updateArticleViewer));
-    server.get("/channels/:channel/articles/:article", handleErrors(findArticle));
-    server.get("/channels/:channel/articles/:article/assets", handleErrors(fetchArticleAssets));
-    server.get("/channels/:channel/articles/:article/assets/:asset", handleErrors(fetchArticleFile));
-    server.get("/channels/:channel/articles", handleErrors(selectFromChannel));
+    server.get("/articles/:article", handleErrors(findArticle));
+    server.get("/articles/:article/assets", handleErrors(fetchArticleAssets));
+    server.get("/articles/:article/assets/:asset", handleErrors(fetchArticleFile));
     server.get("/channels", handleErrors(selectChannels));
+    server.get("/channels/:channel", handleErrors(findChannel));
+    server.get("/channels/:channel/articles", handleErrors(selectChannelArticles));
     server.get("/channels/:channel/assets/:asset", handleErrors(fetchChannelFile));
     server.get("/personal/libraries", handleErrors(selectLibraries));
     server.get("/personal/libraries/:library/notebooks", handleErrors(selectNotebooks));

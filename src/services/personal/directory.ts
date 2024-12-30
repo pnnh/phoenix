@@ -1,9 +1,10 @@
-import {PLSelectResult, NPDirectoryModel} from "@pnnh/venus-business";
+
 import fs from "node:fs";
 import frontMatter from "front-matter";
-import {decodeBase64String, encodeBase64String} from "@pnnh/atom";
 import path from "path";
-import {emptySelectResult} from "@pnnh/venus-business";
+import {emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {NPDirectoryModel} from "@/atom/common/models/images/directory";
 
 export class NPDirectoryService {
     systemDomain: string
@@ -26,11 +27,10 @@ export class NPDirectoryService {
                 const notebookName = path.basename(file, path.extname(file))
                 const notebookUniqueName = encodeBase64String(file)
                 const model: NPDirectoryModel = {
-                    album: "", album_name: "", children: undefined, level: 0, parent: "", path: "",
+                    album: "", album_name: "", children: [], level: 0, parent: "", path: "",
                     profile: "", profile_name: "",
                     title: notebookName,
                     create_time: "", update_time: "",
-                    uid: notebookUniqueName,
                     name: notebookName,
                     description: '',
                     owner: '',
@@ -54,10 +54,13 @@ export class NPDirectoryService {
             }
         }
         return {
-            range: notebooks,
-            count: notebooks.length,
-            page: 1,
-            size: notebooks.length
+            code: 0, message: '',
+            data: {
+                range: notebooks,
+                count: notebooks.length,
+                page: 1,
+                size: notebooks.length
+            }
         }
     }
 }

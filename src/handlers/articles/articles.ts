@@ -1,35 +1,24 @@
 
 import {openMainDatabase} from "@/services/server/database";
-import {createPaginationByPage} from "@/utils/pagination";
 import {Request, Response} from "express";
-import {SystemArticleService} from "@/services/server/domain/system/article";
+import {SystemArticleService} from "@/services/server/articles/article";
 import {serverConfig} from "@/services/server/config";
 import {articleViewerCache} from "@/services/server/cache";
-import {PSArticleModel} from "@/atom/common/models/article";
-import {CodeOk, CommonResult, PLInsertResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {CodeNotFound, CodeOk, CommonResult, PLInsertResult, PLSelectResult} from "@/atom/common/models/protocol";
 
 // 查找单个文章
 export async function findArticle(request: Request, response: Response) {
     const domainUrl = serverConfig.INITIAL_DOMAINS
     const articleService = new SystemArticleService(domainUrl)
 
-    const {channel, article} = request.params;
-    const result = await articleService.getArticle(channel, article)
+    const { article} = request.params;
+    const result = await articleService.findArticleFromDatabase(article)
     if (!result) {
-        return response.json({status: 404})
+        return response.json({code: CodeNotFound})
     }
     return response.json(result)
 }
 
-// 查找某个频道里的文章列表
-export async function selectFromChannel(request: Request, response: Response) {
-    const domainUrl = serverConfig.INITIAL_DOMAINS
-    const articleService = new SystemArticleService(domainUrl)
-
-    const {channel} = request.params;
-    const result = await articleService.selectArticlesInChannel(channel as string)
-    return response.json(result)
-}
 
 export async function selectArticlesFromDatabase(
     request: Request,
@@ -48,47 +37,11 @@ export async function selectArticlesFromDatabase(
     if (size <= 10 || isNaN(size)) {
         size = 10;
     }
-    const db = await openMainDatabase();
-    const {limit, offset} = createPaginationByPage(page, size);
+    const articleService = new SystemArticleService(serverConfig.INITIAL_DOMAINS)
+    const selectResult = await articleService.selectArticlesFromDatabase(page,
+        size, keyword as string,
+        filter as string, sort as string, '')
 
-    let selectSql = `SELECT * FROM articles WHERE 1 = 1 `;
-    let selectParams: any = {}
-
-    if (keyword) {
-        selectSql += ` AND (title LIKE '%' || :keyword || '%' OR description LIKE '%' || :keyword || '%' OR body LIKE '%' || :keyword || '%') `;
-        selectParams[":keyword"] = keyword;
-    }
-    if (filter) {
-        if (filter === 'year') {
-            selectSql += ` AND strftime('%Y', update_time) = strftime('%Y', 'now') `;
-        } else if (filter === 'month') {
-            selectSql += ` AND strftime('%Y-%m', update_time) = strftime('%Y-%m', 'now') `;
-        }
-    }
-
-    const count = await db.get<{ total: number }>(
-        `SELECT COUNT(*) AS total FROM (${selectSql}) as temp`, selectParams
-    );
-    if (!count) {
-        throw new Error("查询count失败");
-    }
-    selectSql += ` ORDER BY ${sort === 'latest' ? 'update_time' : 'discover'} DESC LIMIT :limit OFFSET :offset`;
-    selectParams[":limit"] = limit;
-    selectParams[":offset"] = offset;
-    const result = await db.all<PSArticleModel[]>(
-        selectSql, selectParams,
-    );
-
-    const selectResult: PLSelectResult<PSArticleModel> = {
-        code: CodeOk,
-        message: "",
-        data: {
-            range: result,
-            count: count.total,
-            page: page,
-            size: result.length,
-        }
-    };
     response.json(selectResult);
 }
 

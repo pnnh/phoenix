@@ -1,9 +1,10 @@
-import {PLSelectResult, NPAlbumModel} from "@pnnh/venus-business";
+
 import fs from "node:fs";
-import frontMatter from "front-matter";
-import {decodeBase64String, encodeBase64String} from "@pnnh/atom";
 import path from "path";
-import {emptySelectResult} from "@pnnh/venus-business";
+import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {NPAlbumModel} from "@/atom/common/models/images/album";
+import frontMatter from "front-matter";
 
 export class NPAlbumService {
     systemDomain: string
@@ -29,7 +30,6 @@ export class NPAlbumService {
                     image: "", owner_name: "", profile: "", profile_name: "",
                     title: notebookName,
                     create_time: "", update_time: "",
-                    uid: notebookUniqueName,
                     name: notebookName,
                     description: '',
                     owner: '',
@@ -53,10 +53,13 @@ export class NPAlbumService {
             }
         }
         return {
-            range: notebooks,
-            count: notebooks.length,
-            page: 1,
-            size: notebooks.length
+            code: CodeOk, message: '',
+            data: {
+                range: notebooks,
+                count: notebooks.length,
+                page: 1,
+                size: notebooks.length
+            }
         }
     }
 }

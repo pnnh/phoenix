@@ -1,8 +1,10 @@
-import {PLSelectResult, NPLibraryModel} from "@pnnh/venus-business";
+
 import fs from "node:fs";
 import frontMatter from "front-matter";
-import {encodeBase64String} from "@pnnh/atom";
 import path from "path";
+import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
+import {encodeBase64String} from "@/atom/common/utils/basex";
+import {NPLibraryModel} from "@/atom/common/models/images/library";
 
 export class NPLibraryService {
     systemDomain: string
@@ -21,12 +23,11 @@ export class NPLibraryService {
                 const libraryName = path.basename(file, path.extname(file))
                 const uniqueName = encodeBase64String(file)
                 const model: NPLibraryModel = {
-                    create_time: "", update_time: "",
-                    uid: uniqueName,
+                    create_time: "",
+                    update_time: "",
                     urn: uniqueName,
                     name: libraryName,
                     description: '',
-                    nid: 0,
                     owner: ''
                 }
                 const metadataFile = path.join(basePath, file, 'metadata.md')
@@ -47,10 +48,13 @@ export class NPLibraryService {
             }
         }
         return {
-            range: librarys,
-            count: librarys.length,
-            page: 1,
-            size: librarys.length
+            code: CodeOk, message: '',
+            data: {
+                range: librarys,
+                count: librarys.length,
+                page: 1,
+                size: librarys.length
+            }
         }
     }
 }

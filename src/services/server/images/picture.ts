@@ -1,11 +1,14 @@
 import fs from "node:fs";
 import frontMatter from "front-matter";
 import path from "path";
-import {bulkInsertOrUpdateArticles, openMainDatabase} from "@/services/server/database";
-import {createPaginationByPage} from "@pnnh/atom";
-import {NPPictureModel, PLSelectResult} from "@pnnh/venus-business";
+import { openMainDatabase} from "@/services/server/database";
 import ignore from 'ignore'
-import {decodeBase64String, encodeBase64String, getType} from "@pnnh/atom";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {NPPictureModel} from "@/atom/common/models/images/image";
+import {createPaginationByPage} from "@/atom/common/utils/pagination";
+import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
+import {bulkInsertOrUpdateArticles} from "@/services/server/images/database";
+import {getMimeType} from "@/atom/common/utils/mime";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 
@@ -22,10 +25,9 @@ export class SystemPictureService {
         const pictureUrn = encodeBase64String(noteName)
 
         const model: NPPictureModel = {
-            file: "", folder: "", nid: 0, status: 0,
+            file: "", folder: "", status: 0,
             create_time: "",
             update_time: "",
-            uid: pictureUrn,
             description: '',
             urn: pictureUrn,
             title: noteName,
@@ -108,10 +110,13 @@ export class SystemPictureService {
             throw new Error('查询count失败')
         }
         return {
-            range: result,
-            count: count.total,
-            page: page,
-            size: result.length
+            code: CodeOk, message: '',
+            data:{
+                range: result,
+                count: count.total,
+                page: page,
+                size: result.length
+            }
         }
     }
 
@@ -171,7 +176,7 @@ export class SystemPictureService {
 
         const stat = fs.statSync(fullPath)
         if (stat && stat.isFile() && stat.size < 4096000) {
-            const mimeType = getType(fullPath)
+            const mimeType = getMimeType(fullPath)
             return {
                 mime: mimeType,
                 buffer: fs.readFileSync(fullPath)

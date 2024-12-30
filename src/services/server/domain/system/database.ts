@@ -29,6 +29,10 @@ export async function bulkInsertOrUpdateArticles(articles: PSArticleModel[]) {
             WHERE articles.urn = excluded.urn;`)
     for (const article of articles) {
         const channelUrn = article.channel as string
+        if (!article.urn || !article.title || !article.body) {
+            console.log("article invalid", article.title)
+            continue
+        }
         await stmt.run({
             $urn: article.urn,
             $title: article.title,

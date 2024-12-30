@@ -1,11 +1,12 @@
-import {PLSelectResult, NPPictureModel} from "@pnnh/venus-business";
+
 import fs from "node:fs";
 import frontMatter from "front-matter";
-import {decodeBase64String, encodeBase64String, getType} from "@pnnh/atom";
 import path from "path";
-import {emptySelectResult} from "@pnnh/venus-business";
 import {serverConfig} from "@/services/server/config";
-import {isImage} from "@/utils/image";
+import {getMimeType, isImageType} from "@/atom/common/utils/mime";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {NPPictureModel} from "@/atom/common/models/images/image";
+import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
 
 export class NPPictureService {
     systemDomain: string
@@ -18,7 +19,7 @@ export class NPPictureService {
         const files = fs.readdirSync(imagePackagePath)
         for (const file of files) {
             const stat = fs.statSync(path.join(imagePackagePath, file))
-            if (stat.isFile() && isImage(file)) {
+            if (stat.isFile() && isImageType(file)) {
                 return file
             }
         }
@@ -37,10 +38,10 @@ export class NPPictureService {
         const fileUrl = `${resourceUrl}/pictures/${pictureUniqueName}/assets/${imageFileUrn}`
         const model: NPPictureModel = {
             file: fileUrl,
-            folder: "", nid: 0, status: 0,
+            folder: "",
+            status: 0,
             title: pictureName,
             create_time: "", update_time: "",
-            uid: pictureUniqueName,
             description: '',
             owner: '',
             urn: pictureUniqueName
@@ -68,10 +69,9 @@ export class NPPictureService {
         const fileUrl = `${resourceUrl}/pictures/${pictureUrn}/assets/${imageFileUrn}`
         const model: NPPictureModel = {
             file: fileUrl,
-            folder: "", nid: 0, status: 0,
+            folder: "", status: 0,
             title: pictureName,
             create_time: "", update_time: "",
-            uid: pictureUrn,
             description: '',
             owner: '',
             urn: pictureUrn
@@ -89,7 +89,7 @@ export class NPPictureService {
             if (stat.isDirectory() && file.endsWith('.image')) {
                 const model = await this.#parsePictureFromPackage(resourceDirectory, resourceUrl, file)
                 if (model) list.push(model)
-            } else if (stat.isFile() && isImage(file)) {
+            } else if (stat.isFile() && isImageType(file)) {
                 const model = await this.#parsePictureFromFile(resourceDirectory, resourceUrl, file)
                 if (model) list.push(model)
             }
@@ -113,10 +113,14 @@ export class NPPictureService {
         const notes = await this.#parsePictureList(resourceDirectory, resourceUrl)
 
         return {
-            range: notes,
-            count: notes.length,
-            page: 1,
-            size: notes.length
+            code: CodeOk,
+            message: '',
+            data: {
+                range: notes,
+                count: notes.length,
+                page: 1,
+                size: notes.length
+            }
         }
     }
 
@@ -127,13 +131,13 @@ export class NPPictureService {
         const assetsPath = decodeBase64String(assetsUrn)
         let fullPath = path.join(this.systemDomain, libraryPath, albumPath, picturePath)
         // 如果不是图片文件，那么就是图片包目录
-        if (!isImage(picturePath)) {
+        if (!isImageType(picturePath)) {
             fullPath = path.join(fullPath, assetsPath)
         }
 
         const stat = fs.statSync(fullPath)
         if (stat && stat.isFile() && stat.size < 4096000) {
-            const mimeType = getType(fullPath)
+            const mimeType = getMimeType(fullPath)
             return {
                 mime: mimeType,
                 buffer: fs.readFileSync(fullPath)
