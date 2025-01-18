@@ -16,7 +16,7 @@ interface IServerConfig {
 
 function parseConfig(): IServerConfig {
     const config = {
-        ENV: process.env.NODE_ENV || '',
+        ENV: process.env.NODE_ENV || 'development',
         SELF_URL: process.env.SELF_URL || '',
         INITIAL_DOMAINS: process.env.INITIAL_DOMAINS || '',
         PORT: parseInt(process.env.PORT || '8100'),
