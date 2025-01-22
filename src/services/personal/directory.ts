@@ -10,7 +10,7 @@ export class NPDirectoryService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
     async selectNotebooks(libraryUrn: string): Promise<PLSelectResult<NPDirectoryModel>> {

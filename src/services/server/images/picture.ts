@@ -9,6 +9,7 @@ import {createPaginationByPage} from "@/atom/common/utils/pagination";
 import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
 import {bulkInsertOrUpdateArticles} from "@/services/server/images/database";
 import {getMimeType} from "@/atom/common/utils/mime";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 
@@ -16,7 +17,7 @@ export class SystemPictureService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
     async #parseImageInfo(channelUrn: string, articlePath: string) {

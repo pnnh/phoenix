@@ -5,12 +5,13 @@ import {fillNoteMetadata} from "@/services/server/articles/article";
 import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
 import {SPNoteModel} from "@/atom/common/models/personal/note";
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 export class SystemNoteService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
     async selectNotes(libraryUrn: string, notebookUrn: string): Promise<PLSelectResult<SPNoteModel>> {

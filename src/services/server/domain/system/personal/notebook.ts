@@ -5,12 +5,13 @@ import path from "path";
 import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
 import {PSNotebookModel} from "@/atom/common/models/personal/notebook";
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 export class SystemNotebookService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
     async selectNotebooks(libraryUrn: string): Promise<PLSelectResult<PSNotebookModel>> {

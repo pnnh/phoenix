@@ -7,12 +7,13 @@ import {getMimeType, isImageType} from "@/atom/common/utils/mime";
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
 import {NPPictureModel} from "@/atom/common/models/images/image";
 import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 export class NPPictureService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
     async #findIndexPictureFile(imagePackagePath: string) {

@@ -5,12 +5,13 @@ import path from "path";
 import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
 import {PSLibraryModel} from "@/atom/common/models/personal/library";
 import {encodeBase64String} from "@/atom/common/utils/basex";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 export class SystemLibraryService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
     async selectLibraries(): Promise<PLSelectResult<PSLibraryModel>> {

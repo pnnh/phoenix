@@ -1,7 +1,7 @@
 
 import fs from "node:fs";
 import path from "path";
-import {PSChannelMetadataModel, PSChannelModel} from "@/atom/common/models/channel";
+import {MTChannelModel, PSChannelMetadataModel, PSChannelModel} from "@/atom/common/models/channel";
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
 import {getMimeType} from "@/atom/common/utils/mime";
 import YAML from 'yaml'
@@ -10,40 +10,53 @@ import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/atom/common/m
 import {createPaginationByPage} from "@/utils/pagination";
 import {isValidUUID, uuidV4} from "@/atom/common/utils/uuid";
 import {SystemArticleService} from "@/services/server/articles/article";
+import {resolvePath} from "@/atom/server/filesystem/path";
+import frontMatter from "front-matter";
+import {PSArticleMetadataModel} from "@/atom/common/models/article";
 
 export class SystemChannelService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
 
-    async #parseChannelInfo(channelFullPath: string): Promise<PSChannelModel | undefined> {
+    async #parseChannelInfo(channelFullPath: string): Promise<MTChannelModel | undefined> {
         const stat = fs.statSync(channelFullPath)
         const extName = path.extname(channelFullPath)
         if (!stat.isDirectory() || (extName !== '.chan' && extName !== '.channel')) {
             return undefined
         }
-        const model: PSChannelModel = {
+        const model: MTChannelModel = {
             create_time: "", creator: "", profile: "", update_time: "",
             image: '',
             name: path.basename(channelFullPath, extName),
             description: '',
-            urn: ''
+            uid: ''
         }
-        const metadataFile = path.join(channelFullPath, 'metadata.yaml')
-        if (fs.existsSync(metadataFile)) {
-            const statIndex = fs.statSync(metadataFile)
-            model.create_time = statIndex.birthtime.toISOString()
-            model.update_time = statIndex.mtime.toISOString()
-            const metadataText = fs.readFileSync(metadataFile, 'utf-8')
-            const metadata = YAML.parse(metadataText) as
-                PSChannelMetadataModel
+
+        // 从metadata.md中解析元数据
+        const indexFile = path.join(channelFullPath, 'metadata.md')
+        let contentText: string | undefined
+        if (fs.existsSync(indexFile)) {
+            contentText = fs.readFileSync(indexFile, 'utf-8')
+        } else {
+            const readmeFile = path.join(channelFullPath, 'README.md')
+            if (fs.existsSync(readmeFile)) {
+                contentText = fs.readFileSync(readmeFile, 'utf-8')
+            }
+        }
+        if (!contentText) {
+            return undefined
+        }
+            const matter = frontMatter(contentText)
+            const metadata = matter.attributes as PSChannelMetadataModel
             if (metadata) {
-                if (metadata.urn ) {
-                    if (isValidUUID(metadata.urn)) {
-                        model.urn = metadata.urn
+                const noteUid = metadata.uid || metadata.urn
+                if (noteUid ) {
+                    if (isValidUUID(noteUid)) {
+                        model.uid = noteUid
                     } else {
                         throw new Error('urn格式错误')
                     }
@@ -58,31 +71,22 @@ export class SystemChannelService {
                     model.name = metadata.name
                 }
             }
-        } else {
-            model.urn = uuidV4()
-            const metadataModel = {
-                urn: model.urn,
-                name: model.name,
-                description: model.description,
-                image: ''
-            } as PSChannelMetadataModel
-            const metadataContent = YAML.stringify(metadataModel)
-            fs.writeFileSync(metadataFile, metadataContent)
-        }
+
+
         return model
     }
 
     async #scanChannels() {
         const basePath = this.systemDomain
-        const channels: PSChannelModel[] = []
+        const channels: MTChannelModel[] = []
         const files = fs.readdirSync(basePath)
         const articleService = new SystemArticleService(this.systemDomain)
         for (const file of files) {
             const fullPath = path.join(basePath, file)
             const model = await this.#parseChannelInfo(fullPath)
-            if (model) {
+            if (model && model.uid && model.name) {
                 channels.push(model)
-                await articleService.syncArticlesInChannel(model.urn, fullPath)
+                await articleService.syncArticlesInChannel(model.uid, fullPath)
             }
         }
         return channels
@@ -93,7 +97,7 @@ export class SystemChannelService {
         await this.#bulkInsertOrUpdateArticles(channels)
     }
 
-    async #bulkInsertOrUpdateArticles(channelModels: PSChannelModel[]) {
+    async #bulkInsertOrUpdateArticles(channelModels: MTChannelModel[]) {
         const db = await openMainDatabase()
         await db.exec('BEGIN TRANSACTION;')
         const stmt = await db.prepare(`INSERT 
@@ -105,12 +109,12 @@ export class SystemChannelService {
                 image = excluded.image
             WHERE channels.urn = excluded.urn;`)
         for (const model of channelModels) {
-            if (!model.urn ) {
+            if ( !model.uid ) {
                 console.log("channel invalid", model.name)
                 continue
             }
             await stmt.run({
-                $urn: model.urn,
+                $urn: model.uid ,
                 $name: model.name,
                 $description: model.description,
                 $image: model.image,

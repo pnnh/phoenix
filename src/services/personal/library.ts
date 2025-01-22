@@ -10,7 +10,7 @@ export class NPLibraryService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
     async selectLibraries(): Promise<PLSelectResult<NPLibraryModel>> {

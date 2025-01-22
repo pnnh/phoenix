@@ -5,12 +5,13 @@ import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/pr
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
 import {NPAlbumModel} from "@/atom/common/models/images/album";
 import frontMatter from "front-matter";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 export class NPAlbumService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
     async selectNotebooks(libraryUrn: string): Promise<PLSelectResult<NPAlbumModel>> {

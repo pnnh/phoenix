@@ -1,10 +1,10 @@
 
 import {openMainDatabase} from "@/services/server/database";
 import {Database} from "sqlite";
-import {PSArticleModel} from "@/atom/common/models/article";
+import {MTNoteModel, PSArticleModel} from "@/atom/common/models/article";
 import {encodeBase64String} from "@/atom/common/utils/basex";
 
-export async function bulkInsertOrUpdateArticles(articles: PSArticleModel[]) {
+export async function bulkInsertOrUpdateArticles(articles: MTNoteModel[]) {
     const db = await openMainDatabase()
     await db.exec('BEGIN TRANSACTION;')
     const stmt = await db.prepare(`INSERT 
@@ -29,12 +29,12 @@ export async function bulkInsertOrUpdateArticles(articles: PSArticleModel[]) {
             WHERE articles.urn = excluded.urn;`)
     for (const article of articles) {
         const channelUrn = article.channel as string
-        if (!article.urn || !article.title || !article.body) {
+        if (!article.uid || !article.title || !article.body) {
             console.log("article invalid", article.title)
             continue
         }
         await stmt.run({
-            $urn: article.urn,
+            $urn: article.uid,
             $title: article.title,
             $header: article.header,
             $body: article.body,
@@ -48,7 +48,7 @@ export async function bulkInsertOrUpdateArticles(articles: PSArticleModel[]) {
             $channel: channelUrn,
             $partition: article.partition,
         });
-        await bulkInsertOrUpdateTags(db, channelUrn, article.urn, article.keywords)
+        await bulkInsertOrUpdateTags(db, channelUrn, article.uid, article.keywords)
     }
     await stmt.finalize()
     await db.exec('COMMIT;')

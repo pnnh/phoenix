@@ -3,7 +3,7 @@ import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
 import ignore from 'ignore'
 import {decodeBase64String,} from "@/atom/common/utils/basex";
-import {PSArticleFileModel, PSArticleMetadataModel} from "@/atom/common/models/article";
+import {MTNoteModel, PSArticleFileModel, PSArticleMetadataModel} from "@/atom/common/models/article";
 import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/atom/common/models/protocol";
 import {getMimeType} from "@/atom/common/utils/mime";
 import path from "path";
@@ -14,10 +14,11 @@ import {encodeBase64String} from "@/atom/common/utils/basex";
 import frontMatter from "front-matter";
 import YAML from "yaml";
 import {isValidUUID, uuidV4} from "@/atom/common/utils/uuid";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 
-export async function fillNoteMetadata(noteDirectoryFullPath: string, model: SPNoteModel | PSArticleModel) {
+export async function fillNoteMetadata(noteDirectoryFullPath: string, model: MTNoteModel) {
     let contentFile = path.join(noteDirectoryFullPath, 'index.md')
     let contentText: string | undefined
     if (fs.existsSync(contentFile)) {
@@ -36,40 +37,24 @@ export async function fillNoteMetadata(noteDirectoryFullPath: string, model: SPN
     model.update_time = statIndex.mtime.toISOString()
     const matter = frontMatter(contentText)
     model.body = matter.body
+    const metadata = matter.attributes as PSArticleMetadataModel
 
-    // 检查metadata.yaml元数据文件是否存在
-    let metadataFile = path.join(noteDirectoryFullPath, 'metadata.yaml')
-    if (fs.existsSync(metadataFile)) {
-        const metadataText = fs.readFileSync(metadataFile, 'utf-8')
-        const metadata = YAML.parse(metadataText) as PSArticleMetadataModel
-        if (metadata) {
-            if (metadata.urn ) {
-                if (isValidUUID(metadata.urn)) {
-                    model.urn = metadata.urn
-                } else {
-                    throw new Error('urn格式错误')
-                }
-            }
-            if (metadata.description) {
-                model.description = metadata.description
-            }
-            if (metadata.image) {
-                model.cover = metadata.image
-            }
-            if (metadata.title) {
-                model.title = metadata.title
-            }
+    const noteUid = metadata.uid || metadata.urn
+    if (noteUid ) {
+        if (isValidUUID(noteUid)) {
+            model.uid = noteUid
+        } else {
+            throw new Error('urn格式错误')
         }
-    } else {
-        model.urn = uuidV4()
-        const metadataModel = {
-                urn: model.urn,
-                title: model.title,
-                description: model.description,
-                image: ''
-             } as PSArticleMetadataModel
-        const metadataContent = YAML.stringify(metadataModel)
-        fs.writeFileSync(metadataFile, metadataContent)
+    }
+    if (metadata.description) {
+        model.description = metadata.description
+    }
+    if (metadata.image) {
+        model.cover = metadata.image
+    }
+    if (metadata.title) {
+        model.title = metadata.title
     }
 }
 
@@ -77,19 +62,18 @@ export class SystemArticleService {
     systemDomain: string
 
     constructor(systemDomain: string) {
-        this.systemDomain = systemDomain.replace('file://', '')
+        this.systemDomain = resolvePath(systemDomain)
     }
 
-    async #parseArticleInfo(channelUrn: string, articleFullPath: string): Promise<PSArticleModel | undefined> {
+    async #parseArticleInfo(channelUrn: string, articleFullPath: string): Promise<MTNoteModel | undefined> {
         const extName = path.extname(articleFullPath)
         const noteName = path.basename(articleFullPath, extName)
 
-        const model: PSArticleModel = {
-            discover: 0,
+        const model: MTNoteModel = {
+            uid: '', discover: 0,
             create_time: "", creator: "",
             update_time: "",
             description: '',
-            urn: '',
             title: noteName,
             header: 'markdown',
             body: '',
@@ -103,15 +87,15 @@ export class SystemArticleService {
 
         await fillNoteMetadata(articleFullPath, model)
 
-        if (!model.urn || !model.title) {
-            console.warn('文章元数据错误', articleFullPath)
+        console.log('======', model.title, model.uid)
+        if (!model.uid || !model.title) {
             return undefined
         }
         return model
     }
 
     async syncArticlesInChannel(channelUrn: string, channelFullPath: string) {
-        const articles: PSArticleModel[] = []
+        const articles: MTNoteModel[] = []
         const files = fs.readdirSync(channelFullPath)
         for (const file of files) {
 
