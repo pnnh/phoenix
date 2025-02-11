@@ -3,9 +3,9 @@ import fs from "node:fs";
 import path from "path";
 import {fillNoteMetadata} from "@/services/server/articles/article";
 import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
-import {SPNoteModel} from "@/atom/common/models/personal/note";
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
 import {resolvePath} from "@/atom/server/filesystem/path";
+import {MTNoteModel} from "@/atom/common/models/article";
 
 export class SystemNoteService {
     systemDomain: string
@@ -14,9 +14,9 @@ export class SystemNoteService {
         this.systemDomain = resolvePath(systemDomain)
     }
 
-    async selectNotes(libraryUrn: string, notebookUrn: string): Promise<PLSelectResult<SPNoteModel>> {
+    async selectNotes(libraryUrn: string, notebookUrn: string): Promise<PLSelectResult<MTNoteModel>> {
         const basePath = this.systemDomain
-        const notes: SPNoteModel[] = []
+        const notes: MTNoteModel[] = []
         const libraryFileName = decodeBase64String(libraryUrn)
         if (!fs.existsSync(path.join(basePath, libraryFileName))) {
             return emptySelectResult()
@@ -31,11 +31,10 @@ export class SystemNoteService {
             if (stat.isDirectory() && file.endsWith('.note')) {
                 const noteName = path.basename(file, path.extname(file))
                 const noteUniqueName = encodeBase64String(file)
-                const model: SPNoteModel = {
+                const model: MTNoteModel = {
+                    creator: "",
                     body: "",
                     channel: "",
-                    channel_name: "",
-                    children: 0,
                     cover: "",
                     discover: 0,
                     header: "markdown",
@@ -44,12 +43,9 @@ export class SystemNoteService {
                     path: "",
                     title: noteName,
                     create_time: "", update_time: "",
-                    urn: noteUniqueName,
-                    name: noteName,
+                    uid: noteUniqueName,
                     description: '',
-                    owner: '',
-                    library: libraryUrn,
-                    notebook: notebookUrn
+                    owner: ''
                 }
                 let noteDirectoryFullPath = path.join(basePath, libraryFileName, notebookFileName, file)
                 await fillNoteMetadata(noteDirectoryFullPath, model)
@@ -70,7 +66,7 @@ export class SystemNoteService {
 
 
     async updateNote(libraryUrn: string, notebookUrn: string, noteUrn: string,
-                     article: SPNoteModel): Promise<void> {
+                     article: MTNoteModel): Promise<void> {
         console.log('执行笔记文件保存操作', article)
         const basePath = this.systemDomain
         const libraryFileName = decodeBase64String(libraryUrn)

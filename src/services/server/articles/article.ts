@@ -8,11 +8,9 @@ import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/atom/common/m
 import {getMimeType} from "@/atom/common/utils/mime";
 import path from "path";
 import fs from "node:fs";
-import {SPNoteModel} from "@/atom/common/models/personal/note";
 import {PSArticleModel} from "@/atom/common/models/article";
 import {encodeBase64String} from "@/atom/common/utils/basex";
 import frontMatter from "front-matter";
-import YAML from "yaml";
 import {isValidUUID, uuidV4} from "@/atom/common/utils/uuid";
 import {resolvePath} from "@/atom/server/filesystem/path";
 
@@ -119,7 +117,7 @@ export class SystemArticleService {
         const db = await openMainDatabase();
         const {limit, offset} = createPaginationByPage(page, size);
 
-        let selectSql = `SELECT * FROM articles WHERE 1 = 1 `;
+        let selectSql = `SELECT *, urn as uid FROM articles WHERE 1 = 1 `;
         let selectParams: any = {}
 
         if (keyword) {

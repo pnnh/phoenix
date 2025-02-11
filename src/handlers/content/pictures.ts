@@ -1,8 +1,10 @@
 import {openMainDatabase} from "@/services/server/database";
-import {createPaginationByPage} from "@pnnh/atom";
 import {Request, Response} from "express";
 import {serverConfig} from "@/services/server/config";
-import {SystemPictureService} from "@/services/server/picture";
+import {SystemPictureService} from "@/services/server/images/picture";
+import {CodeOk, CommonResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {createPaginationByPage} from "@/atom/common/utils/pagination";
+import {NPPictureModel} from "@/atom/common/models/images/image";
 
 // 查找单个文章
 export async function findPicture(request: Request, response: Response) {
@@ -35,7 +37,7 @@ export async function selectPicturesFromDatabase(
     const size = 10;
     const db = await openMainDatabase();
     const {limit, offset} = createPaginationByPage(page, size);
-    const result = await db.all<NCPictureModel[]>(
+    const result = await db.all<NPPictureModel[]>(
         `SELECT * FROM images ORDER BY update_time DESC LIMIT :limit OFFSET :offset`,
         {
             ":limit": limit,
@@ -49,7 +51,7 @@ export async function selectPicturesFromDatabase(
         throw new Error("查询count失败");
     }
 
-    const selectResult: CommonResult<PLSelectResult<NCPictureModel>> = {
+    const selectResult: PLSelectResult<NPPictureModel> = {
         code: CodeOk,
         message: "",
         data: {
