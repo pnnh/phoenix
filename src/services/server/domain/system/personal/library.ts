@@ -6,6 +6,7 @@ import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
 import {PSLibraryModel} from "@/atom/common/models/personal/library";
 import {encodeBase64String} from "@/atom/common/utils/basex";
 import {resolvePath} from "@/atom/server/filesystem/path";
+import {encodeMD5Format} from "@/atom/common/utils/crypto";
 
 export class SystemLibraryService {
     systemDomain: string
@@ -22,7 +23,7 @@ export class SystemLibraryService {
             const stat = fs.statSync(path.join(basePath, file))
             if (stat.isDirectory() && file.endsWith('.notelibrary')) {
                 const libraryName = path.basename(file, path.extname(file))
-                const uniqueName = encodeBase64String(file)
+                const uniqueName = encodeMD5Format(file)
                 const model: PSLibraryModel = {
                     create_time: "", update_time: "",
                     urn: uniqueName,

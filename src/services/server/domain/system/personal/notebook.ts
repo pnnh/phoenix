@@ -6,6 +6,7 @@ import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/pr
 import {PSNotebookModel} from "@/atom/common/models/personal/notebook";
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
 import {resolvePath} from "@/atom/server/filesystem/path";
+import {encodeMD5Format} from "@/atom/common/utils/crypto";
 
 export class SystemNotebookService {
     systemDomain: string
@@ -26,7 +27,7 @@ export class SystemNotebookService {
             const stat = fs.statSync(path.join(basePath, libraryFileName, file))
             if (stat.isDirectory() && file.endsWith('.notebook')) {
                 const notebookName = path.basename(file, path.extname(file))
-                const notebookUniqueName = encodeBase64String(file)
+                const notebookUniqueName = encodeMD5Format(file)
                 const model: PSNotebookModel = {
                     image: "", owner_name: "", profile: "", profile_name: "",
                     title: notebookName,

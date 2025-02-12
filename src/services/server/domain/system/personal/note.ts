@@ -6,6 +6,7 @@ import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/pr
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
 import {resolvePath} from "@/atom/server/filesystem/path";
 import {MTNoteModel} from "@/atom/common/models/article";
+import {encodeMD5, encodeMD5Format} from "@/atom/common/utils/crypto";
 
 export class SystemNoteService {
     systemDomain: string
@@ -30,7 +31,7 @@ export class SystemNoteService {
             const stat = fs.statSync(path.join(basePath, libraryFileName, notebookFileName, file))
             if (stat.isDirectory() && file.endsWith('.note')) {
                 const noteName = path.basename(file, path.extname(file))
-                const noteUniqueName = encodeBase64String(file)
+                const noteUniqueName = encodeMD5Format(file)
                 const model: MTNoteModel = {
                     creator: "",
                     body: "",

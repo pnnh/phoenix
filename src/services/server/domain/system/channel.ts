@@ -12,7 +12,6 @@ import {isValidUUID, uuidV4} from "@/atom/common/utils/uuid";
 import {SystemArticleService} from "@/services/server/articles/article";
 import {resolvePath} from "@/atom/server/filesystem/path";
 import frontMatter from "front-matter";
-import {PSArticleMetadataModel} from "@/atom/common/models/article";
 
 export class SystemChannelService {
     systemDomain: string

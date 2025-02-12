@@ -179,7 +179,7 @@ export class SystemArticleService {
     async findArticleFromDatabase(urn: string): Promise<PLGetResult<PSArticleModel | undefined>> {
         const db = await openMainDatabase()
         const result = await db.all<PSArticleModel[]>(
-            `select * from articles where urn = :urn limit 1`, {
+            `select *, urn as uid from articles where urn = :urn limit 1`, {
                 ':urn': urn,
             })
         if (!result || result.length === 0) {
