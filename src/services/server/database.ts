@@ -2,6 +2,7 @@ import sqlite3 from 'sqlite3'
 import {Database, open} from 'sqlite'
 import {numberVersion} from "@/version";
 import {serverConfig} from "@/services/server/config";
+import fs from 'fs'
 
 const databaseMap: Map<string, Database<sqlite3.Database>> = new Map()
 
@@ -17,7 +18,15 @@ export async function openDatabase(filename: string): Promise<Database<sqlite3.D
     return database
 }
 
+function ensureDirectoryExistence(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, {recursive: true});
+    }
+}
+
 export async function openMainDatabase() {
-    const mainDatabasePath = `${serverConfig.DATA_PATH}/polaris.${numberVersion}.db`
+    const cachePath = `${serverConfig.DATA_PATH}/cache`
+    ensureDirectoryExistence(cachePath)
+    const mainDatabasePath = `${cachePath}/polaris.${numberVersion}.db`
     return openDatabase(mainDatabasePath)
 }
