@@ -1,4 +1,3 @@
-
 import fs from "node:fs";
 import path from "path";
 import {MTChannelModel, PSChannelMetadataModel, PSChannelModel} from "@/atom/common/models/channel";
@@ -49,27 +48,27 @@ export class SystemChannelService {
         if (!contentText) {
             return undefined
         }
-            const matter = frontMatter(contentText)
-            const metadata = matter.attributes as PSChannelMetadataModel
-            if (metadata) {
-                const noteUid = metadata.uid || metadata.urn
-                if (noteUid ) {
-                    if (isValidUUID(noteUid)) {
-                        model.uid = noteUid
-                    } else {
-                        throw new Error('urn格式错误')
-                    }
-                }
-                if (metadata.description) {
-                    model.description = metadata.description
-                }
-                if (metadata.image) {
-                    model.image = metadata.image
-                }
-                if (metadata.name) {
-                    model.name = metadata.name
+        const matter = frontMatter(contentText)
+        const metadata = matter.attributes as PSChannelMetadataModel
+        if (metadata) {
+            const noteUid = metadata.uid || metadata.urn
+            if (noteUid) {
+                if (isValidUUID(noteUid)) {
+                    model.uid = noteUid
+                } else {
+                    throw new Error('urn格式错误')
                 }
             }
+            if (metadata.description) {
+                model.description = metadata.description
+            }
+            if (metadata.image) {
+                model.image = metadata.image
+            }
+            if (metadata.name) {
+                model.name = metadata.name
+            }
+        }
 
 
         return model
@@ -108,12 +107,12 @@ export class SystemChannelService {
                 image = excluded.image
             WHERE channels.urn = excluded.urn;`)
         for (const model of channelModels) {
-            if ( !model.uid ) {
+            if (!model.uid) {
                 console.log("channel invalid", model.name)
                 continue
             }
             await stmt.run({
-                $urn: model.uid ,
+                $urn: model.uid,
                 $name: model.name,
                 $description: model.description,
                 $image: model.image,
@@ -129,7 +128,7 @@ export class SystemChannelService {
         const db = await openMainDatabase();
         const {limit, offset} = createPaginationByPage(page, size);
 
-        let selectSql = `SELECT * FROM channels WHERE 1 = 1 `;
+        let selectSql = `SELECT *, urn as uid FROM channels WHERE 1 = 1 `;
         let selectParams: any = {}
 
         const count = await db.get<{ total: number }>(
@@ -160,7 +159,7 @@ export class SystemChannelService {
     async findChannelFromDatabase(urn: string): Promise<PLGetResult<PSChannelModel | undefined>> {
         const db = await openMainDatabase()
         const result = await db.all<PSChannelModel[]>(
-            `select * from channels where urn = :urn limit 1`, {
+            `select *, urn as uid from channels where urn = :urn limit 1`, {
                 ':urn': urn,
             })
         if (!result || result.length === 0) {
@@ -173,10 +172,9 @@ export class SystemChannelService {
         return {
             code: CodeOk,
             message: '',
-            data:  result[0]
+            data: result[0]
         }
     }
-
 
 
     async readAssets(channelUrn: string, fileUrn: string) {

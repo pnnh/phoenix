@@ -38,7 +38,7 @@ export async function fillNoteMetadata(noteDirectoryFullPath: string, model: MTN
     const metadata = matter.attributes as PSArticleMetadataModel
 
     const noteUid = metadata.uid || metadata.urn
-    if (noteUid ) {
+    if (noteUid) {
         if (isValidUUID(noteUid)) {
             model.uid = noteUid
         } else {
@@ -85,7 +85,6 @@ export class SystemArticleService {
 
         await fillNoteMetadata(articleFullPath, model)
 
-        console.log('======', model.title, model.uid)
         if (!model.uid || !model.title) {
             return undefined
         }
@@ -97,7 +96,7 @@ export class SystemArticleService {
         const files = fs.readdirSync(channelFullPath)
         for (const file of files) {
 
-                const fullPath = path.join(channelFullPath, file)
+            const fullPath = path.join(channelFullPath, file)
             const stat = fs.statSync(fullPath)
             const extName = path.extname(file)
             if ((stat.isDirectory() && extName === '.note')) {
