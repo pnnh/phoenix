@@ -1,12 +1,11 @@
-
 import fs from "node:fs";
 import path from "path";
 import {fillNoteMetadata} from "@/services/server/articles/article";
 import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
 import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
 import {resolvePath} from "@/atom/server/filesystem/path";
-import {MTNoteModel} from "@/atom/common/models/article";
 import {encodeMD5, encodeMD5Format} from "@/atom/common/utils/crypto";
+import {PSArticleModel} from "@/atom/common/models/article";
 
 export class SystemNoteService {
     systemDomain: string
@@ -15,9 +14,9 @@ export class SystemNoteService {
         this.systemDomain = resolvePath(systemDomain)
     }
 
-    async selectNotes(libraryUrn: string, notebookUrn: string): Promise<PLSelectResult<MTNoteModel>> {
+    async selectNotes(libraryUrn: string, notebookUrn: string): Promise<PLSelectResult<PSArticleModel>> {
         const basePath = this.systemDomain
-        const notes: MTNoteModel[] = []
+        const notes: PSArticleModel[] = []
         const libraryFileName = decodeBase64String(libraryUrn)
         if (!fs.existsSync(path.join(basePath, libraryFileName))) {
             return emptySelectResult()
@@ -32,7 +31,7 @@ export class SystemNoteService {
             if (stat.isDirectory() && file.endsWith('.note')) {
                 const noteName = path.basename(file, path.extname(file))
                 const noteUniqueName = encodeMD5Format(file)
-                const model: MTNoteModel = {
+                const model: PSArticleModel = {
                     creator: "",
                     body: "",
                     channel: "",
@@ -67,7 +66,7 @@ export class SystemNoteService {
 
 
     async updateNote(libraryUrn: string, notebookUrn: string, noteUrn: string,
-                     article: MTNoteModel): Promise<void> {
+                     article: PSArticleModel): Promise<void> {
         console.log('执行笔记文件保存操作', article)
         const basePath = this.systemDomain
         const libraryFileName = decodeBase64String(libraryUrn)

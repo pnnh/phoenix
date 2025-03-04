@@ -1,7 +1,7 @@
 import {serverConfig} from "@/services/server/config";
 import {Request, Response} from "express";
 import {SystemNoteService} from "@/services/server/domain/system/personal/note";
-import {MTNoteModel} from "@/atom/common/models/article";
+import {PSArticleModel} from "@/atom/common/models/article";
 
 // 查询频道列表
 export async function selectNotes(request: Request, response: Response) {
@@ -20,7 +20,7 @@ export async function updateNote(request: Request, response: Response) {
     const {library, notebook, note} = request.params
     const service = new SystemNoteService(domainUrl)
 
-    const article = request.body as MTNoteModel
+    const article = request.body as PSArticleModel
     console.log('updateNote', article)
 
     const result = await service.updateNote(library, notebook, note, article)

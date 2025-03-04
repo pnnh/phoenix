@@ -3,7 +3,7 @@ import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
 import ignore from 'ignore'
 import {decodeBase64String,} from "@/atom/common/utils/basex";
-import {MTNoteModel, PSArticleFileModel, PSArticleMetadataModel} from "@/atom/common/models/article";
+import {PSArticleFileModel, PSArticleMetadataModel} from "@/atom/common/models/article";
 import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/atom/common/models/protocol";
 import {getMimeType} from "@/atom/common/utils/mime";
 import path from "path";
@@ -16,7 +16,7 @@ import {resolvePath} from "@/atom/server/filesystem/path";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 
-export async function fillNoteMetadata(noteDirectoryFullPath: string, model: MTNoteModel) {
+export async function fillNoteMetadata(noteDirectoryFullPath: string, model: PSArticleModel) {
     let contentFile = path.join(noteDirectoryFullPath, 'index.md')
     let contentText: string | undefined
     if (fs.existsSync(contentFile)) {
@@ -37,7 +37,7 @@ export async function fillNoteMetadata(noteDirectoryFullPath: string, model: MTN
     model.body = matter.body
     const metadata = matter.attributes as PSArticleMetadataModel
 
-    const noteUid = metadata.uid || metadata.urn
+    const noteUid = metadata.uid
     if (noteUid) {
         if (isValidUUID(noteUid)) {
             model.uid = noteUid
@@ -63,11 +63,11 @@ export class SystemArticleService {
         this.systemDomain = resolvePath(systemDomain)
     }
 
-    async #parseArticleInfo(channelUrn: string, articleFullPath: string): Promise<MTNoteModel | undefined> {
+    async #parseArticleInfo(channelUrn: string, articleFullPath: string): Promise<PSArticleModel | undefined> {
         const extName = path.extname(articleFullPath)
         const noteName = path.basename(articleFullPath, extName)
 
-        const model: MTNoteModel = {
+        const model: PSArticleModel = {
             uid: '', discover: 0,
             create_time: "", creator: "",
             update_time: "",
@@ -92,7 +92,7 @@ export class SystemArticleService {
     }
 
     async syncArticlesInChannel(channelUrn: string, channelFullPath: string) {
-        const articles: MTNoteModel[] = []
+        const articles: PSArticleModel[] = []
         const files = fs.readdirSync(channelFullPath)
         for (const file of files) {
 
