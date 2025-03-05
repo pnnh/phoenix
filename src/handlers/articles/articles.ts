@@ -1,4 +1,3 @@
-
 import {openMainDatabase} from "@/services/server/database";
 import {Request, Response} from "express";
 import {SystemArticleService} from "@/services/server/articles/article";
@@ -11,7 +10,7 @@ export async function findArticle(request: Request, response: Response) {
     const domainUrl = serverConfig.INITIAL_DOMAINS
     const articleService = new SystemArticleService(domainUrl)
 
-    const { article} = request.params;
+    const {article} = request.params;
     const result = await articleService.findArticleFromDatabase(article)
     if (!result) {
         return response.json({code: CodeNotFound})
@@ -26,7 +25,10 @@ export async function selectArticlesFromDatabase(
 ) {
     let page = 1;
     let size = 10;
-    const {page: pageStr, size: sizeStr, keyword, filter, sort} = request.query;
+    const {
+        page: pageStr, size: sizeStr, keyword: keywordStr,
+        filter: filterStr, sort: sortStr
+    } = request.query;
     if (pageStr && sizeStr) {
         page = parseInt(pageStr as string);
         size = parseInt(sizeStr as string);
@@ -39,8 +41,8 @@ export async function selectArticlesFromDatabase(
     }
     const articleService = new SystemArticleService(serverConfig.INITIAL_DOMAINS)
     const selectResult = await articleService.selectArticlesFromDatabase(page,
-        size, keyword as string,
-        filter as string, sort as string, '')
+        size, sortStr as string, keywordStr as string,
+        filterStr as string, '')
 
     response.json(selectResult);
 }
@@ -72,7 +74,6 @@ export async function updateArticleViewer(
 
     const db = await openMainDatabase();
 
-
     let selectSql = `update articles set discover = ifnull(discover, 0) + 1 where urn = :urn`;
     let selectParams: any = {
         ":urn": article,
@@ -84,11 +85,12 @@ export async function updateArticleViewer(
 
     articleViewerCache.set(cacheKey, 1, 60 * 60 * 24);
 
-    const selectResult: PLInsertResult<unknown>= {
+    const selectResult: PLInsertResult<unknown> = {
         code: CodeOk,
         message: "",
         data: {
             urn: article,
+            uid: article,
             changes: result.changes || 0,
         }
     };
