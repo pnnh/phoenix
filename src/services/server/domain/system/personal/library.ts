@@ -2,11 +2,11 @@
 import fs from "node:fs";
 import frontMatter from "front-matter";
 import path from "path";
-import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
-import {PSLibraryModel} from "@/atom/common/models/personal/library";
-import {encodeBase64String} from "@/atom/common/utils/basex";
-import {resolvePath} from "@/atom/server/filesystem/path";
-import {encodeMD5Format} from "@/atom/common/utils/crypto";
+import {CodeOk, PLSelectResult} from "@/quark/atom/common/models/protocol";
+import {PSLibraryModel} from "@/quark/atom/common/models/personal/library";
+import {encodeBase64String} from "@/quark/atom/common/utils/basex";
+import {resolvePath} from "@/quark/atom/server/filesystem/path";
+import {encodeMD5Format} from "@/quark/atom/common/utils/crypto";
 
 export class SystemLibraryService {
     systemDomain: string

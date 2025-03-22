@@ -2,7 +2,7 @@ import sqlite3 from 'sqlite3'
 import {Database, open} from 'sqlite'
 import {numberVersion} from "@/version";
 import {serverConfig} from "@/services/server/config";
-import {NPPictureModel} from "@/atom/common/models/images/image";
+import {NPPictureModel} from "@/quark/atom/common/models/images/image";
 
 const databaseMap: Map<string, Database<sqlite3.Database>> = new Map()
 

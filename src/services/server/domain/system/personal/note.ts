@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "path";
 import {fillNoteMetadata} from "@/services/server/articles/article";
-import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
-import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
-import {resolvePath} from "@/atom/server/filesystem/path";
-import {encodeMD5, encodeMD5Format} from "@/atom/common/utils/crypto";
-import {PSArticleModel} from "@/atom/common/models/article";
+import {CodeOk, emptySelectResult, PLSelectResult} from "@/quark/atom/common/models/protocol";
+import {decodeBase64String, encodeBase64String} from "@/quark/atom/common/utils/basex";
+import {resolvePath} from "@/quark/atom/server/filesystem/path";
+import {encodeMD5, encodeMD5Format} from "@/quark/atom/common/utils/crypto";
+import {PSArticleModel} from "@/quark/atom/common/models/article";
 
 export class SystemNoteService {
     systemDomain: string

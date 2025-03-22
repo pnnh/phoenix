@@ -18,7 +18,7 @@ export async function openDatabase(filename: string): Promise<Database<sqlite3.D
     return database
 }
 
-function ensureDirectoryExistence(dirPath) {
+function ensureDirectoryExistence(dirPath: string) {
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, {recursive: true});
     }

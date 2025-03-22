@@ -1,7 +1,7 @@
 import {openMainDatabase} from "@/services/server/database";
 import {Database} from "sqlite";
-import {PSArticleModel} from "@/atom/common/models/article";
-import {encodeBase64String} from "@/atom/common/utils/basex";
+import {PSArticleModel} from "@/quark/atom/common/models/article";
+import {encodeBase64String} from "@/quark/atom/common/utils/basex";
 
 export async function bulkInsertOrUpdateArticles(articles: PSArticleModel[]) {
     const db = await openMainDatabase()

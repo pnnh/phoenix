@@ -3,11 +3,11 @@ import fs from "node:fs";
 import frontMatter from "front-matter";
 import path from "path";
 import {serverConfig} from "@/services/server/config";
-import {getMimeType, isImageType} from "@/atom/common/utils/mime";
-import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
-import {NPPictureModel} from "@/atom/common/models/images/image";
-import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
-import {resolvePath} from "@/atom/server/filesystem/path";
+import {getMimeType, isImageType} from "@/quark/atom/common/utils/mime";
+import {decodeBase64String, encodeBase64String} from "@/quark/atom/common/utils/basex";
+import {NPPictureModel} from "@/quark/atom/common/models/images/image";
+import {CodeOk, emptySelectResult, PLSelectResult} from "@/quark/atom/common/models/protocol";
+import {resolvePath} from "@/quark/atom/server/filesystem/path";
 
 export class NPPictureService {
     systemDomain: string

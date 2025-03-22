@@ -1,15 +1,15 @@
 import fs from "node:fs";
 import path from "path";
-import {MTChannelModel, PSChannelMetadataModel, PSChannelModel} from "@/atom/common/models/channel";
-import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
-import {getMimeType} from "@/atom/common/utils/mime";
+import {  PSChannelMetadataModel, PSChannelModel} from "@/quark/atom/common/models/channel";
+import {decodeBase64String, encodeBase64String} from "@/quark/atom/common/utils/basex";
+import {getMimeType} from "@/quark/atom/common/utils/mime";
 import YAML from 'yaml'
 import {openMainDatabase} from "@/services/server/database";
-import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/quark/atom/common/models/protocol";
 import {createPaginationByPage} from "@/utils/pagination";
-import {isValidUUID, uuidV4} from "@/atom/common/utils/uuid";
+import {isValidUUID, uuidV4} from "@/quark/atom/common/utils/uuid";
 import {SystemArticleService} from "@/services/server/articles/article";
-import {resolvePath} from "@/atom/server/filesystem/path";
+import {resolvePath} from "@/quark/atom/server/filesystem/path";
 import frontMatter from "front-matter";
 
 export class SystemChannelService {
@@ -20,13 +20,13 @@ export class SystemChannelService {
     }
 
 
-    async #parseChannelInfo(channelFullPath: string): Promise<MTChannelModel | undefined> {
+    async #parseChannelInfo(channelFullPath: string): Promise<PSChannelModel | undefined> {
         const stat = fs.statSync(channelFullPath)
         const extName = path.extname(channelFullPath)
         if (!stat.isDirectory() || (extName !== '.chan' && extName !== '.channel')) {
             return undefined
         }
-        const model: MTChannelModel = {
+        const model: PSChannelModel = {
             create_time: "", creator: "", profile: "", update_time: "",
             image: '',
             name: path.basename(channelFullPath, extName),
@@ -51,7 +51,7 @@ export class SystemChannelService {
         const matter = frontMatter(contentText)
         const metadata = matter.attributes as PSChannelMetadataModel
         if (metadata) {
-            const noteUid = metadata.uid || metadata.urn
+            const noteUid = metadata.uid
             if (noteUid) {
                 if (isValidUUID(noteUid)) {
                     model.uid = noteUid
@@ -76,7 +76,7 @@ export class SystemChannelService {
 
     async #scanChannels() {
         const basePath = this.systemDomain
-        const channels: MTChannelModel[] = []
+        const channels: PSChannelModel[] = []
         const files = fs.readdirSync(basePath)
         const articleService = new SystemArticleService(this.systemDomain)
         for (const file of files) {
@@ -95,7 +95,7 @@ export class SystemChannelService {
         await this.#bulkInsertOrUpdateArticles(channels)
     }
 
-    async #bulkInsertOrUpdateArticles(channelModels: MTChannelModel[]) {
+    async #bulkInsertOrUpdateArticles(channelModels: PSChannelModel[]) {
         const db = await openMainDatabase()
         await db.exec('BEGIN TRANSACTION;')
         const stmt = await db.prepare(`INSERT 

@@ -1,7 +1,7 @@
 import {serverConfig} from "@/services/server/config";
 import {Request, Response} from "express";
 import {SystemNoteService} from "@/services/server/domain/system/personal/note";
-import {PSArticleModel} from "@/atom/common/models/article";
+import {PSArticleModel} from "@/quark/atom/common/models/article";
 
 // 查询频道列表
 export async function selectNotes(request: Request, response: Response) {

@@ -3,13 +3,13 @@ import frontMatter from "front-matter";
 import path from "path";
 import { openMainDatabase} from "@/services/server/database";
 import ignore from 'ignore'
-import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
-import {NPPictureModel} from "@/atom/common/models/images/image";
-import {createPaginationByPage} from "@/atom/common/utils/pagination";
-import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
+import {decodeBase64String, encodeBase64String} from "@/quark/atom/common/utils/basex";
+import {NPPictureModel} from "@/quark/atom/common/models/images/image";
+import {createPaginationByPage} from "@/quark/atom/common/utils/pagination";
+import {CodeOk, PLSelectResult} from "@/quark/atom/common/models/protocol";
 import {bulkInsertOrUpdateArticles} from "@/services/server/images/database";
-import {getMimeType} from "@/atom/common/utils/mime";
-import {resolvePath} from "@/atom/server/filesystem/path";
+import {getMimeType} from "@/quark/atom/common/utils/mime";
+import {resolvePath} from "@/quark/atom/server/filesystem/path";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 
