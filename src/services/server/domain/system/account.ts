@@ -1,5 +1,5 @@
 import {stringToBase58, stringToMd5} from "@/utils/basex";
-import {AccountModel} from "@/quark/atom/common/models/account";
+import {AccountModel} from "@/atom/common/models/account";
 
 export class SystemAccountService {
     async accountInformation() {

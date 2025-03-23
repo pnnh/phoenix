@@ -2,10 +2,10 @@
 import fs from "node:fs";
 import frontMatter from "front-matter";
 import path from "path";
-import {CodeOk, PLSelectResult} from "@/quark/atom/common/models/protocol";
-import {encodeBase64String} from "@/quark/atom/common/utils/basex";
-import {NPLibraryModel} from "@/quark/atom/common/models/images/library";
-import {resolvePath} from "@/quark/atom/server/filesystem/path";
+import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
+import {encodeBase64String} from "@/atom/common/utils/basex";
+import {NPLibraryModel} from "@/atom/common/models/images/library";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 export class NPLibraryService {
     systemDomain: string

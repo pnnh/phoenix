@@ -1,11 +1,11 @@
 
 import fs from "node:fs";
 import path from "path";
-import {CodeOk, emptySelectResult, PLSelectResult} from "@/quark/atom/common/models/protocol";
-import {decodeBase64String, encodeBase64String} from "@/quark/atom/common/utils/basex";
-import {NPAlbumModel} from "@/quark/atom/common/models/images/album";
+import {CodeOk, emptySelectResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {NPAlbumModel} from "@/atom/common/models/images/album";
 import frontMatter from "front-matter";
-import {resolvePath} from "@/quark/atom/server/filesystem/path";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 export class NPAlbumService {
     systemDomain: string

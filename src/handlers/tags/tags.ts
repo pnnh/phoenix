@@ -1,8 +1,8 @@
 import {Request, Response} from "express";
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
-import {CodeOk, PLSelectResult} from "@/quark/atom/common/models/protocol";
-import {PSTagModel} from "@/quark/atom/common/models/tag";
+import {CodeOk, PLSelectResult} from "@/atom/common/models/protocol";
+import {PSTagModel} from "@/atom/common/models/tag";
 
 export async function selectTagsFromDatabase(
     request: Request,

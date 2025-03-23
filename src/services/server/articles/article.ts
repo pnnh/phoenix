@@ -2,17 +2,17 @@ import {bulkInsertOrUpdateArticles} from "@/services/server/domain/system/databa
 import {openMainDatabase} from "@/services/server/database";
 import {createPaginationByPage} from "@/utils/pagination";
 import ignore from 'ignore'
-import {decodeBase64String,} from "@/quark/atom/common/utils/basex";
-import {PSArticleFileModel, PSArticleMetadataModel} from "@/quark/atom/common/models/article";
-import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/quark/atom/common/models/protocol";
-import {getMimeType} from "@/quark/atom/common/utils/mime";
+import {decodeBase64String,} from "@/atom/common/utils/basex";
+import {PSArticleFileModel, PSArticleMetadataModel} from "@/atom/common/models/article";
+import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {getMimeType} from "@/atom/common/utils/mime";
 import path from "path";
 import fs from "node:fs";
-import {PSArticleModel} from "@/quark/atom/common/models/article";
-import {encodeBase64String} from "@/quark/atom/common/utils/basex";
+import {PSArticleModel} from "@/atom/common/models/article";
+import {encodeBase64String} from "@/atom/common/utils/basex";
 import frontMatter from "front-matter";
-import {isValidUUID, uuidV4} from "@/quark/atom/common/utils/uuid";
-import {resolvePath} from "@/quark/atom/server/filesystem/path";
+import {isValidUUID, uuidV4} from "@/atom/common/utils/uuid";
+import {resolvePath} from "@/atom/server/filesystem/path";
 
 const assetsIgnore = ignore().add(['.*', 'node_modules', 'dist', 'build', 'out', 'target', 'logs', 'logs/*', 'logs/**/*'])
 

@@ -1,15 +1,15 @@
 import fs from "node:fs";
 import path from "path";
-import {  PSChannelMetadataModel, PSChannelModel} from "@/quark/atom/common/models/channel";
-import {decodeBase64String, encodeBase64String} from "@/quark/atom/common/utils/basex";
-import {getMimeType} from "@/quark/atom/common/utils/mime";
+import {  PSChannelMetadataModel, PSChannelModel} from "@/atom/common/models/channel";
+import {decodeBase64String, encodeBase64String} from "@/atom/common/utils/basex";
+import {getMimeType} from "@/atom/common/utils/mime";
 import YAML from 'yaml'
 import {openMainDatabase} from "@/services/server/database";
-import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/quark/atom/common/models/protocol";
+import {CodeNotFound, CodeOk, PLGetResult, PLSelectResult} from "@/atom/common/models/protocol";
 import {createPaginationByPage} from "@/utils/pagination";
-import {isValidUUID, uuidV4} from "@/quark/atom/common/utils/uuid";
+import {isValidUUID, uuidV4} from "@/atom/common/utils/uuid";
 import {SystemArticleService} from "@/services/server/articles/article";
-import {resolvePath} from "@/quark/atom/server/filesystem/path";
+import {resolvePath} from "@/atom/server/filesystem/path";
 import frontMatter from "front-matter";
 
 export class SystemChannelService {

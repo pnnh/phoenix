@@ -3,7 +3,7 @@ import {Request, Response} from "express";
 import {SystemArticleService} from "@/services/server/articles/article";
 import {serverConfig} from "@/services/server/config";
 import {articleViewerCache} from "@/services/server/cache";
-import {CodeNotFound, CodeOk, CommonResult, PLInsertResult, PLSelectResult} from "@/quark/atom/common/models/protocol";
+import {CodeNotFound, CodeOk, CommonResult, PLInsertResult, PLSelectResult} from "@/atom/common/models/protocol";
 
 // 查找单个文章
 export async function findArticle(request: Request, response: Response) {

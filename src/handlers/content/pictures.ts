@@ -2,9 +2,9 @@ import {openMainDatabase} from "@/services/server/database";
 import {Request, Response} from "express";
 import {serverConfig} from "@/services/server/config";
 import {SystemPictureService} from "@/services/server/images/picture";
-import {CodeOk, CommonResult, PLSelectResult} from "@/quark/atom/common/models/protocol";
-import {createPaginationByPage} from "@/quark/atom/common/utils/pagination";
-import {NPPictureModel} from "@/quark/atom/common/models/images/image";
+import {CodeOk, CommonResult, PLSelectResult} from "@/atom/common/models/protocol";
+import {createPaginationByPage} from "@/atom/common/utils/pagination";
+import {NPPictureModel} from "@/atom/common/models/images/image";
 
 // 查找单个文章
 export async function findPicture(request: Request, response: Response) {
