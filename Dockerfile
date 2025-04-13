@@ -38,4 +38,4 @@ EXPOSE 7101
 ENV PORT=7101
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "dist/main.mjs"]
+CMD ["node", "dist/server.mjs"]
