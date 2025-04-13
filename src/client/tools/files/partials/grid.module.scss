@@ -1,0 +1,36 @@
+@use "@/client/styles/variables";
+@use "@/client/styles/functions";
+
+.fileGrid {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  grid-gap: 1rem;
+  width: functions.subFullWidth(variables.$leftAreaWidth);
+
+  .fileCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+
+    .fileIcon {
+      font-size: 3rem;
+      color: #333;
+
+      img {
+        width: 12rem;
+        height: 12rem;
+      }
+    }
+
+    .fileName {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: #333;
+    }
+  }
+}

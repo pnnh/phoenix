@@ -1,0 +1,7 @@
+@function subFullWidth($n) {
+  @return calc(100vw - #{$n});
+}
+
+@function subFullHeight($n) {
+  @return calc(100vh - #{$n});
+}

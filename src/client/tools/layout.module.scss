@@ -1,0 +1,22 @@
+@use "@/client/styles/variables";
+
+$topNavHeight: variables.$topNavHeight;
+
+.navToolbar {
+  height: $topNavHeight;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: solid 1px #f0f0f0;
+  padding: 0 1rem;
+
+  a img {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+
+.outletContainer {
+  height: calc(100vh - $topNavHeight);
+}

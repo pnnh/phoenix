@@ -1,0 +1,12 @@
+.highlightPage {
+  height: 100%;
+  scrollbar-width: thin;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  .pageBody {
+
+    width: 960px;
+    margin: 0 auto;
+  }
+}

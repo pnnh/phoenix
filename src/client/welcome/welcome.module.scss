@@ -1,0 +1,46 @@
+.welcomePage {
+  width: 640px;
+  margin: 0 auto;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.toolGrid {
+  margin-top: 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 2rem;
+
+  .toolCard {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.3s;
+    padding: 1rem;
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+    .toolIcon {
+      font-size: 3rem;
+      color: #333;
+      img {
+        width: 12rem;
+        height: 12rem;
+      }
+    }
+    .toolName {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: #333;
+    }
+  }
+}

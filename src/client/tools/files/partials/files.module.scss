@@ -1,0 +1,13 @@
+@use "@/client/styles/variables";
+@use "@/client/styles/functions";
+
+$topNavHeight: variables.$topNavHeight;
+$contentToolbarHeight: variables.$contentToolbarHeight;
+
+.filesContainer {
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: functions.subFullWidth(variables.$leftAreaWidth);
+  height: calc(100vh - $topNavHeight - $contentToolbarHeight);
+  scrollbar-width: thin;
+}

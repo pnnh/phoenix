@@ -3,6 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import pkg from './package.json' with {type: 'json'}
+import copy from "rollup-plugin-copy";
 
 const commonExternal = [
     ...(pkg.dependencies ? Object.keys(pkg.dependencies) : []),
@@ -11,9 +12,9 @@ const commonExternal = [
 ]
 
 export default {
-    input: 'src/main.ts',
+    input: 'src/server/server.tsx',
     output: {
-        file: 'dist/main.mjs',
+        file: 'dist/server.mjs',
         format: 'es',
         sourcemap: true
     },
@@ -22,8 +23,14 @@ export default {
         nodeResolve(),
         commonjs(),
         typescript({
-            outputToFilesystem: true
+            outputToFilesystem: true,
+            exclude: ["**/client/**"]
         }),
-        json()
+        json(),
+        copy({
+            targets: [
+                {src: 'src/server/templates', dest: 'dist'}
+            ]
+        })
     ]
 }
