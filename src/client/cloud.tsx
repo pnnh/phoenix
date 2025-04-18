@@ -20,14 +20,12 @@ function cfTurnstileSetup() {
     turnstileScript(browserConfig.PUBLIC_TURNSTILE);
 }
 
-function setupAll() {
+$(document).ready(() => {
     // 暂时不启用PWA功能
     //pwaSetup();
     if (window.turnstile) {
         cfTurnstileSetup();
+    } else {
+        console.log('Cloudflare Turnstile not found');
     }
-}
-
-$(document).ready(() => {
-    setupAll();
 });

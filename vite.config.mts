@@ -11,7 +11,10 @@ export default defineConfig((configEnv) => {
         mode: env.mode,
         root: process.cwd(),
         base: '/lightning',
+        envPrefix: 'PUBLIC_',
         build: {
+            sourcemap: false,
+            minify: 'esbuild',
             outDir: `dist/client`,
             rollupOptions: {
                 input: {
@@ -29,6 +32,10 @@ export default defineConfig((configEnv) => {
                     }
                 }
             },
+        },
+        esbuild: {
+            pure: ['console.debug'],
+            drop: ['debugger']
         },
         plugins: [react({tsDecorators: true})],
         resolve: {

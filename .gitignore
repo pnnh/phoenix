@@ -6,3 +6,4 @@ node_modules/
 galaxy.mjs
 .env.*
 cache/
+debug.json

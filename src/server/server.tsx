@@ -3,7 +3,7 @@ import {runSync} from "@/server/worker/sync";
 import express, {Request, Response, NextFunction} from "express";
 import http from "http";
 import cron from "node-cron";
-import {isDev, serverConfig} from "@/server/config";
+import {isDev, serverConfig, usePublicConfig} from "@/server/config";
 import {
     fetchArticleAssets,
     fetchArticleFile,
@@ -22,10 +22,10 @@ import {selectNotebooks} from "@/server/handlers/personal/notebook";
 import {selectNotes, updateNote} from "@/server/handlers/personal/note";
 import cors from 'cors'
 import stripAnsi from "strip-ansi";
-import {accountInformation} from "@/server/handlers/account/information";
 import {selectTagsFromDatabase} from "@/server/handlers/tags/tags";
 import {createProxyMiddleware} from "http-proxy-middleware";
 import {engine} from "express-handlebars";
+import {encodeBase58String} from "@/atom/common/utils/basex";
 
 const workerPort = serverConfig.PORT;
 
@@ -58,17 +58,36 @@ function runMain() {
     server.use(express.json());
     server.use(express.urlencoded({extended: true}));
 
+    // server.get("/phoenix/account/information", handleErrors(accountInformation));
+    server.get("/phoenix/articles", handleErrors(selectArticlesFromDatabase));
+    server.get("/phoenix/tags", handleErrors(selectTagsFromDatabase));
+    server.post("/phoenix/articles/:article/viewer", handleErrors(updateArticleViewer));
+    server.get("/phoenix/articles/:article", handleErrors(findArticle));
+    server.get("/phoenix/articles/:article/assets", handleErrors(fetchArticleAssets));
+    server.get("/phoenix/articles/:article/assets/:asset", handleErrors(fetchArticleFile));
+    server.get("/phoenix/channels", handleErrors(selectChannels));
+    server.get("/phoenix/channels/:channel", handleErrors(findChannel));
+    server.get("/phoenix/channels/:channel/articles", handleErrors(selectChannelArticles));
+    server.get("/phoenix/channels/:channel/assets/:asset", handleErrors(fetchChannelFile));
+    server.get("/phoenix/personal/libraries", handleErrors(selectLibraries));
+    server.get("/phoenix/personal/libraries/:library/notebooks", handleErrors(selectNotebooks));
+    server.get("/phoenix/personal/libraries/:library/notebooks/:notebook/notes", handleErrors(selectNotes));
+    server.put("/phoenix/personal/libraries/:library/notebooks/:notebook/notes/:note", handleErrors(updateNote));
+
     server.engine('handlebars', engine());
     server.engine('.hbs', engine({extname: '.hbs'}));
     server.set('view engine', '.hbs');
 
     const cwd = process.cwd();
 
+    const browserConfigString = JSON.stringify(usePublicConfig())
     const mainParams: any = {
         localhostSrc: isDev() ? '/lightning/src/client/localhost.tsx' : '/lightning/assets/localhost.mjs',
         cloudSrc: isDev() ? '/lightning/src/client/cloud.tsx' : '/lightning/assets/cloud.mjs',
+
     }
     if (isDev()) {
+        console.log('isDev')
         server.set('views', `${cwd}/src/server/templates`);
         server.use('/lightning', express.static("public"));
         const proxyMiddleware = createProxyMiddleware<Request, Response>({
@@ -78,30 +97,17 @@ function runMain() {
         });
         server.use(proxyMiddleware);
     } else {
+        console.log('isProd')
         mainParams.localhostStyle = '/lightning/assets/localhost.css';
         mainParams.cloudStyle = '/lightning/assets/cloud.css';
-        server.set('views', `${cwd}/templates`);
-        server.use('/lightning', express.static("client"));
+        mainParams.LGEnv = encodeBase58String(browserConfigString)
+        server.set('views', `${cwd}/dist/templates`);
+        server.use('/lightning', express.static("dist/client"));
     }
 
     server.get('/lightning', (req, res) => {
         res.render('home', mainParams);
     });
-    server.get("/account/information", handleErrors(accountInformation));
-    server.get("/articles", handleErrors(selectArticlesFromDatabase));
-    server.get("/tags", handleErrors(selectTagsFromDatabase));
-    server.post("/articles/:article/viewer", handleErrors(updateArticleViewer));
-    server.get("/articles/:article", handleErrors(findArticle));
-    server.get("/articles/:article/assets", handleErrors(fetchArticleAssets));
-    server.get("/articles/:article/assets/:asset", handleErrors(fetchArticleFile));
-    server.get("/channels", handleErrors(selectChannels));
-    server.get("/channels/:channel", handleErrors(findChannel));
-    server.get("/channels/:channel/articles", handleErrors(selectChannelArticles));
-    server.get("/channels/:channel/assets/:asset", handleErrors(fetchChannelFile));
-    server.get("/personal/libraries", handleErrors(selectLibraries));
-    server.get("/personal/libraries/:library/notebooks", handleErrors(selectNotebooks));
-    server.get("/personal/libraries/:library/notebooks/:notebook/notes", handleErrors(selectNotes));
-    server.put("/personal/libraries/:library/notebooks/:notebook/notes/:note", handleErrors(updateNote));
 
     server.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         const message = stripAnsi(err.stack || err.message || 'Unknown error')

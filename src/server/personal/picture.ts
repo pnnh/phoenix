@@ -111,7 +111,7 @@ export class NPPictureService {
             return emptySelectResult()
         }
         const resourceDirectory = path.join(basePath, libraryFileName, albumFileName)
-        const resourceUrl = `${serverConfig.SELF_URL}/personal/libraries/${libraryUrn}/albums/${albumUrn}`
+        const resourceUrl = `${serverConfig.PUBLIC_SELF_URL}/personal/libraries/${libraryUrn}/albums/${albumUrn}`
         const notes = await this.#parsePictureList(resourceDirectory, resourceUrl)
 
         return {
