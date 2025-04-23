@@ -1,10 +1,8 @@
 // 解析配置信息
 import dotenv from "dotenv";
 import {IBrowserConfig} from "@/common/config";
-import {encodeBase58String, encodeBase64String} from "@/atom/common/utils/basex";
-import {encodeHtml} from "@/atom/common/utils/html";
 
-const result = dotenv.config({path: `.env.${process.env.NODE_ENV ?? 'development'}`})
+const result = dotenv.config({path: `.env.${process.env.RUN_MODE ?? 'development'}`})
 if (result.error) {
     throw new Error(`解析配置出错: ${result.error}`)
 }
@@ -52,9 +50,9 @@ export function usePublicConfig(): IBrowserConfig {
     if (!portalUrl) {
         throw new Error('PUBLIC_PORTAL_URL is required')
     }
-    const runMode = process.env.NODE_ENV || 'development'
+    const runMode = process.env.RUN_MODE || 'development'
     if (!runMode) {
-        throw new Error('NODE_ENV is required')
+        throw new Error('RUN_MODE is required')
     }
     return {
         PUBLIC_SELF_URL: selfUrl,
@@ -68,9 +66,13 @@ export const serverConfig = parseConfig()
 
 
 export function isDev() {
-    return !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+    return !process.env.RUN_MODE || process.env.RUN_MODE === 'development'
+}
+
+export function isTest() {
+    return process.env.RUN_MODE === 'test'
 }
 
 export function isProd() {
-    return process.env.NODE_ENV === 'production'
+    return process.env.RUN_MODE === 'production'
 }

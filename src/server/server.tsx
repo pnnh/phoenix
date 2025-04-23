@@ -41,6 +41,15 @@ function handleErrors(
     }
 }
 
+async function healthCheck(
+    request: Request,
+    response: Response,) {
+    response.status(200).send({
+        code: 200,
+        message: 'ok'
+    })
+}
+
 function runMain() {
     // 每分钟执行一次同步
     cron.schedule("* * * * *", async () => {
@@ -58,7 +67,7 @@ function runMain() {
     server.use(express.json());
     server.use(express.urlencoded({extended: true}));
 
-    // server.get("/phoenix/account/information", handleErrors(accountInformation));
+    server.get('/phoenix/healthz', handleErrors(healthCheck));
     server.get("/phoenix/articles", handleErrors(selectArticlesFromDatabase));
     server.get("/phoenix/tags", handleErrors(selectTagsFromDatabase));
     server.post("/phoenix/articles/:article/viewer", handleErrors(updateArticleViewer));
