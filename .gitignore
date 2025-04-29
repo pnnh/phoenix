@@ -7,3 +7,4 @@ galaxy.mjs
 .env.*
 cache/
 debug.json
+*.tsbuildinfo

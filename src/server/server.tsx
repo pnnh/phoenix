@@ -112,11 +112,10 @@ function runMain() {
         mainParams.LGEnv = encodeBase58String(browserConfigString)
         server.set('views', `${cwd}/dist/templates`);
         server.use('/lightning', express.static("dist/client"));
+        server.get('/lightning{*any}', (req, res) => {
+            res.render('home', mainParams);
+        });
     }
-
-    server.get('/lightning', (req, res) => {
-        res.render('home', mainParams);
-    });
 
     server.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         const message = stripAnsi(err.stack || err.message || 'Unknown error')
